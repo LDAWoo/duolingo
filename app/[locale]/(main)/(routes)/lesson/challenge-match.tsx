@@ -24,13 +24,12 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
         text: string;
     } | null>(null);
 
-    const [audio, _, controls, ref] = useAudio({
+    const [audio, _, __, ref] = useAudio({
         src: "/audio/none.mp3",
         autoPlay: false,
     });
 
     const duration = 300;
-    const height = 60;
     const [dragging, setDragging] = React.useState(false);
     const [results, setResults] = React.useState<Option[]>([]);
     const resultContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -331,6 +330,13 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
             ref.current.load();
         }
     }, []);
+
+    React.useEffect(() => {
+        if (status === "none") {
+            setResults([]);
+            setDisabledButtons([]);
+        }
+    }, [status]);
 
     return (
         <div className="min-h-[170px] h-full flex flex-col self-start">

@@ -11,6 +11,7 @@ import Header from "./header";
 import QuestionBubble from "./question-bubble";
 import QuestionAudio from "./question-audio";
 import QuestionConversation from "./question-conversation";
+import ChallengeFill from "./challenge-fill";
 
 type Props = {
     initialLessonId: number;
@@ -91,6 +92,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
     const onContinue = () => {
         switch (challenge.type) {
             case "MATCH":
+            case "FILL":
                 if (selectedMatchOption.length === 0) return;
 
                 if (status === "wrong") {
@@ -179,6 +181,8 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                 return "Viết lại bằng Tiếng Việt";
             case "CONVERSATION":
                 return "Hoàn thành hội thoại";
+            case "FILL":
+                return "Điền vào chỗ trống";
             case "SELECT":
                 return challenge?.question;
             default:
@@ -189,6 +193,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
     const onDisableButton = () => {
         switch (challenge.type) {
             case "MATCH":
+            case "FILL":
                 return selectedMatchOption.length === 0;
             case "SELECT":
             case "ASSIST":
@@ -204,6 +209,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
         let text = "";
         switch (challenge.type) {
             case "MATCH":
+            case "FILL":
                 const correctMatchOptions = optionsParts.sort((a, b) => a.order - b.order).filter((o) => o.correct);
 
                 if (correctMatchOptions.length > 0) {
@@ -219,6 +225,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                 const correctOption = options.find((option) => option.correct);
                 text = correctOption ? correctOption.text : "Không có đáp án đúng";
                 return text;
+
             default:
                 return "Loại câu hỏi không hợp lệ";
         }
@@ -256,6 +263,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                             {challenge.type === "CONVERSATION" && <QuestionConversation question={challenge?.question} audioSrc={challenge?.audioSrc} />}
                             {(challenge.type === "SELECT" || challenge.type === "ASSIST" || challenge.type === "LISTEN" || challenge.type === "CONVERSATION") && <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disable={!!selectedOption && status !== "none"} type={challenge?.type} />}
                             {challenge.type === "MATCH" && <ChallengeMatch options={optionsParts} onSelectOption={onSelectOption} status={status} type={challenge?.type} />}
+                            {challenge.type === "FILL" && <ChallengeFill question={challenge?.question} imageSrc={challenge?.imageSrc} options={optionsParts} onSelectOption={onSelectOption} status={status} />}
                         </div>
                     </div>
                 </div>
