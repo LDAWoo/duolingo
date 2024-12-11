@@ -1,0 +1,335 @@
+import { challengeParts } from "@/db/schema";
+import { cache } from "react";
+import { redis } from "@/lib/redis";
+import { currentUser, User } from "@/lib/current-user";
+import { eq } from "drizzle-orm";
+import db from "./drizzle";
+import { challengeProgress, courses, lessons, units, userProgress, users } from "./schema";
+
+const CACHE_TTL = 3600;
+
+function shuffle(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+const getFromCache = async (key: string) => {
+    const cachedData = await redis.get(key);
+    return cachedData ? JSON.parse(cachedData) : null;
+};
+
+const saveToCache = async (key: string, data: any) => {
+    await redis.set(key, JSON.stringify(data), "EX", CACHE_TTL);
+};
+
+export const getUserByUserId = cache(async (userId: string) => {
+    const cacheKey = `user:${userId}`;
+    const cachedUser = await getFromCache(cacheKey);
+
+    if (cachedUser) {
+        return cachedUser;
+    }
+
+    const data = await db.query.users.findFirst({
+        where: eq(users.userId, userId),
+    });
+
+    if (data) {
+        await saveToCache(cacheKey, data);
+    }
+
+    return data;
+});
+
+export const getUserByEmail = cache(async (email: string) => {
+    const data = await db.query.users.findFirst({
+        where: eq(users.email, email),
+    });
+    return data;
+});
+
+export const getUserByUserName = cache(async (username: string) => {
+    const decodedUsername = decodeURIComponent(username);
+    const data = await db.query.users.findFirst({
+        where: eq(users.username, decodedUsername),
+    });
+    return data;
+});
+
+export const getCourses = cache(async () => {
+    const cacheKey = `courses`;
+    const cachedData = await getFromCache(cacheKey);
+
+    if (cachedData) {
+        return cachedData;
+    }
+
+    const data = await db.query.courses.findMany();
+
+    if (data) {
+        await saveToCache(cacheKey, data);
+    }
+
+    return data;
+});
+
+export const getUserProgress = cache(async () => {
+    const user = await currentUser();
+
+    if (!user) {
+        return null;
+    }
+    const userId = user.id;
+    const cacheKey = `user-progress:${userId}`;
+    const cachedProgress = await getFromCache(cacheKey);
+
+    if (cachedProgress) {
+        return cachedProgress;
+    }
+
+    const data = await db.query.userProgress.findFirst({
+        where: eq(userProgress.userId, userId),
+        with: {
+            activeCourse: true,
+        },
+    });
+
+    if (data) {
+        await saveToCache(cacheKey, data);
+    }
+
+    return data;
+});
+
+export const getCourseById = cache(async (courseId: number) => {
+    const cacheKey = `course:${courseId}`;
+    const cachedCourse = await getFromCache(cacheKey);
+
+    if (cachedCourse) {
+        return cachedCourse;
+    }
+
+    const data = await db.query.courses.findFirst({
+        where: eq(courses.id, courseId),
+    });
+
+    if (data) {
+        await saveToCache(cacheKey, data);
+    }
+
+    return data;
+});
+
+export const getUnits = cache(async () => {
+    const [user, userProgress] = await Promise.all([currentUser(), getUserProgress()]);
+
+    if (!userProgress?.activeCourseId || !userProgress?.userId || !user) {
+        return [];
+    }
+
+    const cacheKey = `user:${user.id}:course:${userProgress.activeCourseId}:units`;
+    const cachedUnits = await getFromCache(cacheKey);
+
+    if (cachedUnits) {
+        console.log("Retrieving units from cache");
+
+        return cachedUnits;
+    }
+
+    const data = await db.query.units.findMany({
+        where: eq(units.courseId, userProgress.activeCourseId),
+        orderBy: (unit, { asc }) => [asc(unit.order)],
+        with: {
+            lessons: {
+                with: {
+                    levels: {
+                        with: {
+                            challenges: {
+                                with: {
+                                    challengeProgress: {
+                                        where: eq(challengeProgress.userId, user?.id),
+                                    },
+                                    challengeOptions: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            style: true,
+        },
+    });
+
+    const normalizedData = data.map((unit) => {
+        const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
+            const levelsWithCompletedStatus = lesson.levels.map((level) => {
+                if (level.challenges.length === 0) {
+                    return {
+                        ...level,
+                        completed: false,
+                    };
+                }
+
+                const allCompletedLevels = level.challenges.every((challenge) => {
+                    const hasChallengeProgress = challenge.challengeProgress && challenge.challengeProgress.length > 0;
+                    const allChallengeProgressCompleted = hasChallengeProgress ? challenge.challengeProgress.every((progress) => progress.completed) : false;
+
+                    return challenge.challengeOptions && allChallengeProgressCompleted;
+                });
+
+                return {
+                    ...level,
+                    completed: allCompletedLevels,
+                };
+            });
+
+            return {
+                ...lesson,
+                levels: levelsWithCompletedStatus,
+            };
+        });
+
+        return {
+            ...unit,
+            lessons: lessonsWithCompletedStatus,
+        };
+    });
+
+    await saveToCache(cacheKey, normalizedData);
+
+    return normalizedData;
+});
+
+export const getCourseProgress = cache(async () => {
+    const user = await currentUser();
+    const userProgress = await getUserProgress();
+
+    if (!userProgress?.activeCourseId) {
+        return null;
+    }
+
+    const unitsInActiveCourse = await db.query.units.findMany({
+        orderBy: (unit, { asc }) => [asc(unit.order)],
+        where: eq(units.courseId, userProgress.activeCourseId),
+        with: {
+            lessons: {
+                with: {
+                    unit: true,
+                    levels: {
+                        with: {
+                            challenges: {
+                                with: {
+                                    challengeProgress: {
+                                        where: eq(challengeProgress.userId, user.id),
+                                    },
+                                    challengeOptions: true,
+                                    challengeParts: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    const firstIncompleteLevel = unitsInActiveCourse
+        .flatMap((unit) => unit.lessons)
+        .flatMap((lesson) => lesson.levels)
+        .find((level) => {
+            return level?.challenges.some((challenge) => {
+                return !challenge.challengeProgress || challenge.challengeProgress.length === 0;
+            });
+        });
+
+    return {
+        activeLevelLesson: firstIncompleteLevel,
+        activeLevelLessonId: firstIncompleteLevel?.lessonId,
+    };
+});
+
+export const getLesson = cache(async (id?: number) => {
+    const user = await currentUser();
+    if (!user) {
+        return null;
+    }
+    const courseProgress = await getCourseProgress();
+
+    const lessonId = id || courseProgress?.activeLevelLessonId;
+
+    if (!lessonId) {
+        return null;
+    }
+
+    const data = await db.query.lessons.findFirst({
+        where: eq(lessons.id, lessonId),
+        with: {
+            unit: true,
+            levels: {
+                with: {
+                    challenges: {
+                        orderBy: (challenges, { asc }) => [asc(challenges.order)],
+                        with: {
+                            challengeProgress: {
+                                where: eq(challengeProgress.userId, user.id),
+                            },
+                            challengeOptions: true,
+                            challengeParts: {
+                                orderBy: (challengeParts, { asc }) => [asc(challengeParts.order)],
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    if (!data || !data.levels) return null;
+
+    const levels = data.levels.map((level) => {
+        const challengesWithCompletedStatus = level.challenges.map((challenge) => {
+            const completed = challenge.challengeProgress?.length > 0 && challenge.challengeProgress.every((progress) => progress.completed);
+
+            const shuffledParts = shuffle([...challenge.challengeParts]);
+
+            return {
+                ...challenge,
+                completed,
+                challengeParts: shuffledParts,
+            };
+        });
+
+        const levelCompleted = challengesWithCompletedStatus.every((challenge) => challenge.completed);
+
+        return {
+            ...level,
+            challenges: challengesWithCompletedStatus,
+            completed: levelCompleted,
+        };
+    });
+
+    const lesson = levels.find((level) => !level?.completed);
+
+    return {
+        levels,
+        lesson,
+    };
+});
+
+export const getLessonPercentage = cache(async () => {
+    const courseProgress = await getCourseProgress();
+
+    if (!courseProgress?.activeLevelLessonId) return 0;
+
+    const data = await getLesson(courseProgress.activeLevelLessonId);
+
+    if (!data || !data.levels || data.levels.length === 0) return 0;
+
+    const completeLevels = data.levels.filter((level) => level.completed);
+    const percentage = Math.round((completeLevels.length / data.levels.length) * 100);
+
+    return percentage;
+});
