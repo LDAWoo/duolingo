@@ -2,9 +2,10 @@
 
 import AuthenticationModal from "@/components/modals/authentication-modal";
 import { ExitModal } from "@/components/modals/exit-modal";
+import HeartsModal from "@/components/modals/hearts-modal";
 import React, { createContext, useState, ReactNode } from "react";
 
-export type ModalType = "authentication";
+export type ModalType = "authentication" | "hearts";
 
 interface ModalData {}
 
@@ -40,6 +41,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
             {children}
             <AuthenticationModal />
             <ExitModal />
+            <HeartsModal />
         </ModalContext.Provider>
     );
 };

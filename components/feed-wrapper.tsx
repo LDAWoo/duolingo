@@ -5,7 +5,7 @@ type Props = {
 };
 
 const FeedWrapper = ({ children }: Props) => {
-    return <div className="block flex-1 relative top-0 pb-10 z-0">{children}</div>;
+    return <div className="block flex-1 relative top-0 pb-10 z-0 animate-fade-in">{children}</div>;
 };
 
 export default FeedWrapper;

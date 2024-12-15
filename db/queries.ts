@@ -1,29 +1,9 @@
-import { challengeParts } from "@/db/schema";
 import { cache } from "react";
-import { redis } from "@/lib/redis";
-import { currentUser, User } from "@/lib/current-user";
+import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
+import { currentUser } from "@/lib/current-user";
 import { eq } from "drizzle-orm";
 import db from "./drizzle";
-import { challengeProgress, courses, lessons, units, userProgress, users } from "./schema";
-
-const CACHE_TTL = 3600;
-
-function shuffle(array: any[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-const getFromCache = async (key: string) => {
-    const cachedData = await redis.get(key);
-    return cachedData ? JSON.parse(cachedData) : null;
-};
-
-const saveToCache = async (key: string, data: any) => {
-    await redis.set(key, JSON.stringify(data), "EX", CACHE_TTL);
-};
+import { alphabets, challengeProgress, courses, lessons, units, userProgress, users } from "./schema";
 
 export const getUserByUserId = cache(async (userId: string) => {
     const cacheKey = `user:${userId}`;
@@ -83,12 +63,6 @@ export const getUserProgress = cache(async () => {
         return null;
     }
     const userId = user.id;
-    const cacheKey = `user-progress:${userId}`;
-    const cachedProgress = await getFromCache(cacheKey);
-
-    if (cachedProgress) {
-        return cachedProgress;
-    }
 
     const data = await db.query.userProgress.findFirst({
         where: eq(userProgress.userId, userId),
@@ -96,10 +70,6 @@ export const getUserProgress = cache(async () => {
             activeCourse: true,
         },
     });
-
-    if (data) {
-        await saveToCache(cacheKey, data);
-    }
 
     return data;
 });
@@ -329,7 +299,31 @@ export const getLessonPercentage = cache(async () => {
     if (!data || !data.levels || data.levels.length === 0) return 0;
 
     const completeLevels = data.levels.filter((level) => level.completed);
-    const percentage = Math.round((completeLevels.length / data.levels.length) * 100);
+    const percentage = Math.floor((completeLevels.length / data.levels.length) * 100);
 
     return percentage;
+});
+
+export const getAlphabets = cache(async () => {
+    const [user, userProgress] = await Promise.all([currentUser(), getUserProgress()]);
+
+    if (!userProgress?.activeCourseId || !userProgress?.userId || !user) {
+        return [];
+    }
+
+    const cacheKey = `user:${user.id}:course:${userProgress.activeCourseId}:alphabets`;
+    const cachedAlphabets = await getFromCache(cacheKey);
+
+    if (cachedAlphabets) {
+        console.log("Retrieving alphabets from cache");
+        return cachedAlphabets;
+    }
+
+    const data = await db.query.alphabets.findMany({
+        where: eq(alphabets.courseId, userProgress.activeCourseId),
+        with: {
+            characters: true,
+        },
+    });
+    return data;
 });

@@ -40,7 +40,7 @@ const Unit = ({ id, type, src, order, title, description, lessons, activeLessonL
 
                     const pathLeverColor = !isLocked ? backgroundColor : `rgba(229, 229, 229,1)`;
 
-                    return <LessonButton key={lesson.id} levels={lesson.levels as (typeof levels.$inferSelect)[]} activeLevel={activeLessonLevel} backgroundColor={pathLeverColor} id={lesson.id} index={index} order={order} totalCount={lessons.length - 1} current={isCurrent} locked={isLocked} percentage={activeLessonPercentage} />;
+                    return <LessonButton key={lesson.id} title={description} levels={lesson.levels as (typeof levels.$inferSelect)[]} activeLevel={activeLessonLevel} backgroundColor={pathLeverColor} id={lesson.id} index={index} order={order} totalCount={lessons.length - 1} current={isCurrent} locked={isLocked} percentage={activeLessonPercentage} />;
                 })}
 
                 <UnitPet

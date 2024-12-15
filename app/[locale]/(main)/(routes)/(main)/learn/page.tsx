@@ -48,4 +48,4 @@ const LearnPage = async () => {
     );
 };
 
-export default React.memo(LearnPage);
+export default LearnPage;

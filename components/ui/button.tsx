@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const buttonVariants = cva("relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-[calc(var(--type-base-size)-3px)] font-bold transition-colors focus-visible:outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 uppercase tracking-[.8px]", {
     variants: {
         variant: {
-            default: "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-background-hover text-slate-500",
+            default: "bg-background text-foreground translate-y-0 active:translate-y-[4px] before:bg-background before:absolute before:top-0 before:left-0 before:bottom-0 before:right-0 before:border-2 before:border-border before:rounded-2xl before:-z-[1] before:shadow-[0_4px_0_hsl(var(--border))] active:before:shadow-none",
             locked: "bg-disable text-disable-foreground hover:bg-disable border border-b-4 border-border",
             primary: "text-background translate-y-0 active:translate-y-[4px] before:bg-primary-foreground before:hover:bg-primary-foreground/90 before:hover:border-primary-foreground/90 before:absolute before:top-0 before:left-0 before:bottom-0 before:right-0 before:border-2 before:border-primary-foreground before:rounded-2xl before:-z-[1] before:shadow-[0_4px_0_hsl(var(--primary-border))] active:before:shadow-none",
             primaryOutline: "text-primary-foreground translate-y-0 active:translate-y-[4px] before:bg-background before:hover:bg-background-hover before:absolute before:top-0 before:left-0 before:bottom-0 before:right-0 before:border-2 before:rounded-2xl before:-z-[1] before:shadow-[0_4px_0_hsl(var(--border))] active:before:shadow-none",
@@ -21,6 +21,7 @@ const buttonVariants = cva("relative inline-flex items-center justify-center gap
             sidebar: "bg-transparent text-wolf border-2 border-transparent hover:bg-background-hover transition-none",
             sidebarOutline: "bg-primary text-primary-foreground border-sky-300 border-2 hover:bg-sky-500/20 transition-none",
             none: "bg-none border-2 border-[#8B99A0] translate-y-0 active:translate-y-[2px] before:absolute before:-top-[2px] before:-left-[2px] before:-bottom-[2px] before:-right-[2px] before:border-2 before:border-[#8B99A0] before:shadow-[0_2px_0_#8B99A0] before:rounded-[15px] before:-z-[1] active:before:shadow-none",
+            loading: "pointer-events-none cursor-default",
         },
         size: {
             default: "h-11 px-4 py-2",

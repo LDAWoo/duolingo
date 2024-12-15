@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import React from "react";
 
 type Props = {
+    title: string;
     active: boolean;
     locked?: boolean;
     href: string;
@@ -13,7 +14,7 @@ type Props = {
     totalCount: number;
 };
 
-const LessonPopover = ({ active, locked, href, totalCount, activeLevel }: Props) => {
+const LessonPopover = ({ title, active, locked, href, totalCount, activeLevel }: Props) => {
     const popoverRef = React.useRef<HTMLDivElement>(null);
     React.useEffect(() => {
         const timer = setTimeout(() => {
@@ -54,14 +55,14 @@ const LessonPopover = ({ active, locked, href, totalCount, activeLevel }: Props)
             >
                 <div>
                     <div>
-                        <h1 className="">Gọi đồ uống</h1>
+                        <h1 className="">{title}</h1>
                     </div>
                     <p
                         className={cn("mt-2 font-normal", {
                             "mt-0 text-[calc(var(--type-base-size)-1px)]": !locked,
                         })}
                     >
-                        {locked ? "Hãy hoàn thành tất cả các cấp độ phía trên để mở khóa nhé!" : `Bài học ${activeLevel?.order}/${totalCount}`}
+                        {locked ? "Hãy hoàn thành tất cả các cấp độ phía trên để mở khóa nhé!" : activeLevel ? `Bài học ${activeLevel?.order}/${totalCount}` : "Chinh phục cấp độ Huyền thoại để chứng minh trình độ"}
                     </p>
 
                     <Link href={href}>

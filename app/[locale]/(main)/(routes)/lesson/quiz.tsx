@@ -12,6 +12,8 @@ import QuestionBubble from "./question-bubble";
 import QuestionAudio from "./question-audio";
 import QuestionConversation from "./question-conversation";
 import ChallengeFill from "./challenge-fill";
+import { useModal } from "@/providers/modal-provider";
+import { reduceHearts } from "@/actions/user-progress";
 
 type Props = {
     initialLessonId: number;
@@ -29,7 +31,9 @@ type ChallengePartOption = typeof challengeParts.$inferSelect;
 
 const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonChallenges, initialPercentage, userSubscription }) => {
     const router = useRouter();
+    const { onOpen } = useModal();
     const workerRef = React.useRef<Worker | null>(null);
+    const userProgressWorkerRef = React.useRef<Worker | null>(null);
     const [hearts, setHearts] = React.useState(initialHearts);
 
     const [percentage, setPercentage] = React.useState(initialPercentage);
@@ -49,6 +53,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
 
     React.useEffect(() => {
         workerRef.current = new Worker(new URL("/workers/challenge-progress-workers.js", process.env.NEXT_PUBLIC_URL));
+        userProgressWorkerRef.current = new Worker(new URL("/workers/user-progress-workers.js", process.env.NEXT_PUBLIC_URL));
 
         workerRef.current.onmessage = (event) => {
             if (event.data.message === "completed") {
@@ -60,8 +65,15 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
 
         return () => {
             workerRef.current?.terminate();
+            userProgressWorkerRef.current?.terminate();
         };
     }, []);
+
+    React.useEffect(() => {
+        if (hearts === 0) {
+            onOpen("hearts");
+        }
+    }, [hearts]);
 
     const challenge = challenges[activeIndex];
 
@@ -124,7 +136,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                     setPending("pending");
                     workerRef.current?.postMessage({ lessonId: initialLessonId, challengeId: challenge.id });
                 } else {
-                    setStatus("wrong");
+                    handleWrong();
                 }
 
                 break;
@@ -160,12 +172,21 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                     setPending("pending");
                     workerRef.current?.postMessage({ lessonId: initialLessonId, challengeId: challenge.id });
                 } else {
-                    setStatus("wrong");
+                    handleWrong();
                 }
                 break;
             default:
                 return;
         }
+    };
+
+    const handleWrong = () => {
+        setStatus("wrong");
+        if (hearts === 0) {
+            return;
+        }
+        setHearts((prev) => Math.max(prev - 1, 0));
+        userProgressWorkerRef.current?.postMessage({ challengeId: challenge.id });
     };
 
     const getTitle = () => {

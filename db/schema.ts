@@ -65,6 +65,38 @@ export const coursesRelations = relations(courses, ({ many }) => ({
     units: many(units),
 }));
 
+export const alphabets = pgTable("alphabets", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    title: text("title").notNull(),
+    courseId: integer("course_id").references(() => courses.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const characters = pgTable("characters", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    transliteration: text("transliteration").notNull(),
+    audioSrc: text("audio_src").notNull(),
+    alphabetId: integer("alphabet_id").references(() => alphabets.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const alphabetsRelations = relations(alphabets, ({ one, many }) => ({
+    course: one(courses, {
+        fields: [alphabets.courseId],
+        references: [courses.id],
+    }),
+    characters: many(characters),
+}));
+
+export const charactersRelations = relations(characters, ({ one }) => ({
+    alphabet: one(alphabets, {
+        fields: [characters.alphabetId],
+        references: [alphabets.id],
+    }),
+}));
+
 export const unitsEnum = pgEnum("unit_type", ["image", "json"]);
 
 export const units = pgTable("units", {

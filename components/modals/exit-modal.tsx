@@ -25,7 +25,7 @@ export const ExitModal = () => {
                     <DialogTitle className="mt-3 text-center font-bold text-[calc(var(--type-base-size)+6px)]">Đợi chút, đừng đi mà! Bạn sẽ mất hết tiến trình của bài học này nếu thoát bây giờ</DialogTitle>
                 </DialogHeader>
 
-                <DialogFooter className="mt-8">
+                <DialogFooter className="mt-8 block">
                     <div>
                         <Button onClick={onClose} variant={"primary"} className="w-full text-[calc(var(--type-base-size)-3px)]" size={"lg"}>
                             Tiếp tục học

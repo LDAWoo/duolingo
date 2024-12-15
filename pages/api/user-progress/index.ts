@@ -10,6 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             error: "Method not allowed",
         });
     }
+
     try {
         const user = await currentUserPages(req, res);
         const { challengeId } = req.body;
@@ -20,8 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
         }
 
+        const userId = user.id;
+
         const currentUserProgress = await db.query.userProgress.findFirst({
-            where: eq(userProgress.userId, user.id),
+            where: eq(userProgress.userId, userId),
             with: {
                 activeCourse: true,
             },
@@ -40,54 +43,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const existingChallengeProgress = await db.query.challengeProgress.findFirst({
-            where: and(eq(challengeProgress.userId, user.id), eq(challengeProgress.challengeId, challengeId)),
+            where: and(eq(challengeProgress.userId, userId), eq(challengeProgress.challengeId, challengeId)),
         });
 
         const isPractice = !!existingChallengeProgress;
 
-        if (currentUserProgress.hearts === 0 && !isPractice) {
-            return {
-                message: "hearts",
-            };
-        }
-
         if (isPractice) {
-            await db
-                .update(challengeProgress)
-                .set({
-                    completed: true,
-                })
-                .where(eq(challengeProgress.id, existingChallengeProgress.id));
-
-            await db
-                .update(userProgress)
-                .set({
-                    hearts: Math.min(currentUserProgress.hearts + 1, 5),
-                    points: currentUserProgress.points + 10,
-                })
-                .where(eq(userProgress.userId, user.id));
-
-            return;
+            return res.status(200).json({
+                message: "practice",
+            });
         }
 
-        await db.insert(challengeProgress).values({
-            challengeId,
-            userId: user.id,
-            completed: true,
-        });
-
+        if (currentUserProgress.hearts === 0) {
+            res.status(200).json({
+                message: "hearts",
+            });
+        }
         await db
             .update(userProgress)
             .set({
-                points: currentUserProgress.points + 10,
+                hearts: Math.max(currentUserProgress.hearts - 1, 0),
             })
-            .where(eq(userProgress.userId, user.id));
+            .where(eq(userProgress.userId, userId));
 
         return res.status(200).json({
             message: "Successfully",
         });
     } catch (error) {
-        console.log("[CHALLENGE_PROGRESS_POST]", error);
+        console.log("[USER_PROGRESS_POST]", error);
         return res.status(500).json({
             message: "Internal Error",
         });

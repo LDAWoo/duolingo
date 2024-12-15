@@ -54,8 +54,12 @@ const Header = ({ status, hearts, percentage, hasActiveSubscription }: Props) =>
                     </div>
                 </Progress>
             </div>
-            <div className="text-rose-500 flex items-center font-bold">
-                <Image src={"/hearts.svg"} alt="" width={32} height={32} />
+            <div
+                className={cn("text-rose-500 flex items-center font-bold", {
+                    "text-disable-foreground": hearts === 0,
+                })}
+            >
+                <Image src={hearts === 0 ? "/hearts-disable.svg" : "/hearts.svg"} alt="" width={32} height={32} />
                 {hasActiveSubscription ? (
                     <div>
                         <InfinityIcon className="h-6 w-6 stroke-[3]" />

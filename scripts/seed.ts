@@ -7,6 +7,7 @@ import { level1 } from "./lessons/lesson1/levels/level1";
 import { level2 } from "./lessons/lesson1/levels/level2";
 import { level3 } from "./lessons/lesson1/levels/level3";
 import { level4 } from "./lessons/lesson1/levels/level4";
+import { characters } from "./characters";
 
 const sql = neon(process.env.DATABASE_URL ?? "");
 
@@ -20,6 +21,8 @@ const main = async () => {
         // await db.delete(schema.styles);
         // await db.delete(schema.userProgress);
         // await db.delete(schema.units);
+        await db.delete(schema.alphabets);
+        await db.delete(schema.characters);
         // await db.delete(schema.lessons);
         // await db.delete(schema.levels);
         // await db.delete(schema.challenges);
@@ -57,6 +60,23 @@ const main = async () => {
         //         color: "rgb(255, 255, 255)",
         //     },
         // ]);
+
+        await db.insert(schema.alphabets).values([
+            {
+                id: 1,
+                name: "vowels",
+                title: "Nguyên âm",
+                courseId: 1,
+            },
+            {
+                id: 2,
+                name: "consonants",
+                title: "Phụ âm",
+                courseId: 1,
+            },
+        ]);
+
+        await characters();
 
         // await db.insert(schema.units).values([
         //     {
@@ -234,7 +254,7 @@ const main = async () => {
         // await level1();
         // await level2();
         // await level3();
-        await level4();
+        // await level4();
 
         console.log("Seeding finished");
     } catch (error) {

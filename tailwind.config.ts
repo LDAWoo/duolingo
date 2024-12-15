@@ -23,6 +23,14 @@ const config: Config = {
                     DEFAULT: "hsl(var(--wolf))",
                     foreground: "hsl(var(--wolf-foreground))",
                 },
+                swan: {
+                    DEFAULT: "hsl(var(--swan))",
+                    foreground: "hsl(var(--swan-foreground))",
+                },
+                eel: {
+                    DEFAULT: "hsl(var(--eel))",
+                    foreground: "hsl(var(--eel-foreground))",
+                },
                 bee: {
                     DEFAULT: "hsl(var(--bee))",
                     foreground: "hsl(var(--bee-foreground))",
@@ -295,6 +303,21 @@ const config: Config = {
                     "0%": { maxHeight: "100%" },
                     "100%": { maxHeight: "0" },
                 },
+                "loading-first": {
+                    "0%": { opacity: "0" },
+                    "50%": { opacity: ".5" },
+                    "100%": { opacity: "1" },
+                },
+                "loading-second": {
+                    "0%": { opacity: "0" },
+                    "50%": { opacity: ".5" },
+                    "100%": { opacity: "1" },
+                },
+                "loading-third": {
+                    "0%": { opacity: "0" },
+                    "50%": { opacity: ".5" },
+                    "100%": { opacity: "1" },
+                },
             },
             animation: {
                 bounce: "bounce 2s cubic-bezier(0, 0, 0.2, 1) infinite",
@@ -320,6 +343,9 @@ const config: Config = {
                 "spin-slow": "spin 1.5s linear infinite",
                 expand: "expand 0.3s ease-in-out",
                 collapse: "collapse 0.3s ease-in-out",
+                "loading-first": "loading-first .6s ease-in-out infinite",
+                "loading-second": "loading-second .6s ease-in-out infinite",
+                "loading-third": "loading-third .6s ease-in-out infinite",
             },
             transitionProperty: {
                 "max-height": "max-height",
