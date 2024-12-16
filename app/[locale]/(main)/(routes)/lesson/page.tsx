@@ -4,13 +4,13 @@ import React from "react";
 import Quiz from "./quiz";
 
 type Props = {
-    params: {
+    params: Promise<{
         locale: string;
-    };
+    }>;
 };
 
 const LessonPage = async ({ params }: Props) => {
-    const { locale } = params;
+    const { locale } = await params;
     const lessonData = getLesson();
     const userProgressData = getUserProgress();
 

@@ -3,7 +3,13 @@ import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
 import { currentUser } from "@/lib/current-user";
 import { eq } from "drizzle-orm";
 import db from "./drizzle";
-import { alphabets, challengeProgress, courses, lessons, units, userProgress, users } from "./schema";
+import { alphabets, challengeProgress, courses, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
+import { format } from "date-fns";
+import { Steak } from "@/lib/types";
+
+type NormalizedData = {
+    [key: string]: Steak;
+};
 
 export const getUserByUserId = cache(async (userId: string) => {
     const cacheKey = `user:${userId}`;
@@ -326,4 +332,34 @@ export const getAlphabets = cache(async () => {
         },
     });
     return data;
+});
+
+export const getSteaks = cache(async () => {
+    const user = await currentUser();
+
+    if (!user) {
+        return null;
+    }
+    const userId = user.id;
+
+    const data = await db.query.steaks.findMany({
+        where: eq(steaks.userId, userId),
+    });
+
+    if (data && data?.length > 0) {
+        const normalizedData = data.reduce<NormalizedData>((acc, item: typeof steaks.$inferSelect) => {
+            acc[item.type + "Steak"] = {
+                startDate: format(new Date(item.startDate), "yyyy-MM-dd"),
+                endDate: format(new Date(item.endDate), "yyyy-MM-dd"),
+                lastExtendedDate: format(new Date(item.lastExtendedDate), "yyyy-MM-dd"),
+                achieveDate: format(new Date(item.achieveDate), "yyyy-MM-dd"),
+                length: item.startDate && item.endDate ? Math.max((item.endDate.getTime() - item.startDate.getTime()) / (1000 * 60 * 60 * 24), 0) + 1 : 0,
+            };
+            return acc;
+        }, {});
+
+        return normalizedData;
+    }
+
+    return null;
 });

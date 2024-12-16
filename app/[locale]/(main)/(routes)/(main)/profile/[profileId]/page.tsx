@@ -1,14 +1,14 @@
 import UserAvatar from "@/components/user-avatar";
 import UserProfile from "@/components/user-profile";
 import UserProgress from "@/components/user-progress";
-import { getUserByUserName, getUserProgress } from "@/db/queries";
+import { getSteaks, getUserByUserName, getUserProgress } from "@/db/queries";
 import { redirect } from "@/i18n/routing";
 import React from "react";
 
 type Props = {
-    params: {
+    params: Promise<{
         profileId: string;
-    };
+    }>;
 };
 
 const ProfileIdPage = async ({ params }: Props) => {
@@ -16,8 +16,9 @@ const ProfileIdPage = async ({ params }: Props) => {
 
     const userProfileData = getUserByUserName(profileId);
     const userProgressData = getUserProgress();
+    const steakData = getSteaks();
 
-    const [userProfile, userProgress] = await Promise.all([userProfileData, userProgressData]);
+    const [userProfile, userProgress, steaks] = await Promise.all([userProfileData, userProgressData, steakData]);
 
     if (!userProgress || !userProgress.activeCourse) {
         return redirect({ href: "/courses", locale: "en" });
@@ -31,6 +32,7 @@ const ProfileIdPage = async ({ params }: Props) => {
                         title: userProgress.activeCourse.title,
                         imageSrc: userProgress.activeCourse.imageSrc,
                     }}
+                    steaks={steaks}
                     hearts={userProgress.hearts}
                     points={userProgress.points}
                     gems={userProgress.gems}

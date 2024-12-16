@@ -2,15 +2,16 @@ import React from "react";
 import FeedWrapper from "@/components/feed-wrapper";
 import StickyWrapper from "@/components/sticky-wrapper";
 import CharacterWrapper from "./_components/character-wrapper";
-import { getAlphabets, getUserProgress } from "@/db/queries";
+import { getAlphabets, getSteaks, getUserProgress } from "@/db/queries";
 import { redirect } from "@/i18n/routing";
 import UserProgress from "@/components/user-progress";
 
 const CharactersPage = async () => {
     const userProgressData = getUserProgress();
     const alphabetData = getAlphabets();
+    const steakData = getSteaks();
 
-    const [userProgress, alphabets] = await Promise.all([userProgressData, alphabetData]);
+    const [userProgress, alphabets, steaks] = await Promise.all([userProgressData, alphabetData, steakData]);
 
     if (!userProgress || !userProgress.activeCourse) {
         return redirect({ href: "/courses", locale: "en" });
@@ -25,6 +26,7 @@ const CharactersPage = async () => {
                         imageSrc: userProgress?.activeCourse?.imageSrc,
                     }}
                     hearts={userProgress.hearts}
+                    steaks={steaks}
                     points={userProgress.points}
                     gems={userProgress.gems}
                     hasActiveSubscription={false}

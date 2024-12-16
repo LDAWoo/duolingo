@@ -1,19 +1,18 @@
 "use client";
 import { challengeOptions, challengeParts, challenges } from "@/db/schema";
 import { useRouter } from "@/i18n/routing";
+import { useModal } from "@/providers/modal-provider";
 import React from "react";
 import Audio from "./audio";
 import Challenge from "./challenge";
+import ChallengeFill from "./challenge-fill";
 import ChallengeMatch from "./challenge-match";
 import Finish from "./finish";
 import Footer from "./footer";
 import Header from "./header";
-import QuestionBubble from "./question-bubble";
 import QuestionAudio from "./question-audio";
+import QuestionBubble from "./question-bubble";
 import QuestionConversation from "./question-conversation";
-import ChallengeFill from "./challenge-fill";
-import { useModal } from "@/providers/modal-provider";
-import { reduceHearts } from "@/actions/user-progress";
 
 type Props = {
     initialLessonId: number;
@@ -73,7 +72,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
         if (hearts === 0) {
             onOpen("hearts");
         }
-    }, [hearts]);
+    }, [hearts, onOpen]);
 
     const challenge = challenges[activeIndex];
 

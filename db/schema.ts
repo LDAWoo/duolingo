@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
     id: serial("id").primaryKey(),
@@ -14,6 +14,33 @@ export const users = pgTable("users", {
     timeStamp: timestamp("time_stamp").defaultNow(),
     isActive: boolean("is_active").default(true),
 });
+
+export const steaksEnum = pgEnum("steak_type", ["current", "previous", "longest"]);
+
+export const steaks = pgTable(
+    "steaks",
+    {
+        id: serial("id").primaryKey(),
+        userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+        type: steaksEnum("steak_type").notNull(),
+        startDate: timestamp("start_date").defaultNow().notNull(),
+        endDate: timestamp("end_date").defaultNow().notNull(),
+        lastExtendedDate: timestamp("last_extended_date").defaultNow().notNull(),
+        achieveDate: timestamp("achieve_date").defaultNow().notNull(),
+        createdAt: timestamp("created_at").defaultNow(),
+        updatedAt: timestamp("updated_at").defaultNow(),
+    },
+    (steaks) => ({
+        uniqueUserType: uniqueIndex("unique_user_type").on(steaks.userId, steaks.type),
+    })
+);
+
+export const steakRelations = relations(steaks, ({ one }) => ({
+    user: one(users, {
+        fields: [steaks.userId],
+        references: [users.id],
+    }),
+}));
 
 export const followers = pgTable("followers", {
     id: serial("id").primaryKey(),
@@ -36,6 +63,7 @@ export const followersRelations = relations(followers, ({ one }) => ({
 export const userRelations = relations(users, ({ many }) => ({
     followers: many(followers),
     userProgress: many(userProgress),
+    steaks: many(steaks),
 }));
 
 export const userProgress = pgTable("user_progress", {
@@ -59,11 +87,6 @@ export const courses = pgTable("courses", {
     title: text("title").notNull(),
     imageSrc: text("image_src").notNull(),
 });
-
-export const coursesRelations = relations(courses, ({ many }) => ({
-    userProgress: many(userProgress),
-    units: many(units),
-}));
 
 export const alphabets = pgTable("alphabets", {
     id: serial("id").primaryKey(),
@@ -90,10 +113,67 @@ export const alphabetsRelations = relations(alphabets, ({ one, many }) => ({
     characters: many(characters),
 }));
 
-export const charactersRelations = relations(characters, ({ one }) => ({
+export const charactersRelations = relations(characters, ({ one, many }) => ({
     alphabet: one(alphabets, {
         fields: [characters.alphabetId],
         references: [alphabets.id],
+    }),
+    characterChallenges: many(characterChallenges),
+}));
+
+export const characterChallengesEnum = pgEnum("character_challenge_type", ["LISTEN", "LISTEN_AND_SELECT"]);
+
+export const characterChallenges = pgTable("character_challenges", {
+    id: serial("id").primaryKey(),
+    characterId: integer("character_id").references(() => characters.id, { onDelete: "cascade" }),
+    type: characterChallengesEnum("character_challenge_type"),
+    order: integer("order").notNull(),
+});
+
+export const characterChallengesRelations = relations(characterChallenges, ({ one, many }) => ({
+    characterChallengeAnswers: many(characterChallengeAnswers),
+    characterChallengeOptions: many(characterChallengeOptions),
+    character: one(characters, {
+        fields: [characterChallenges.characterId],
+        references: [characters.id],
+    }),
+}));
+
+export const characterChallengeAnswers = pgTable("character_challenge_answers", {
+    id: serial("id").primaryKey(),
+    characterChallengeId: integer("character_challenge_id").references(() => characterChallenges.id, { onDelete: "cascade" }),
+    answer: text("answer").notNull(),
+    audioSrc: text("audio_src").notNull(),
+    order: integer("order").notNull(),
+});
+
+export const characterChallengeOptions = pgTable("character_challenge_options", {
+    id: serial("id").primaryKey(),
+    characterChallengeId: integer("character_challenge_id").references(() => characterChallenges.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    correct: boolean("correct").notNull(),
+    imageSrc: text("image_src"),
+    audioSrc: text("audio_src"),
+});
+
+export const characterChallengeOptionsRelations = relations(characterChallengeOptions, ({ one, many }) => ({
+    characterChallenge: one(characterChallenges, {
+        fields: [characterChallengeOptions.characterChallengeId],
+        references: [characterChallenges.id],
+    }),
+}));
+
+export const characterChallengeProgress = pgTable("character_challenge_progress", {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull(),
+    characterChallengeId: integer("character_challenge_id").references(() => challenges.id, { onDelete: "cascade" }),
+    completed: boolean("complete").notNull().default(false),
+});
+
+export const characterChallengeProgressRelations = relations(characterChallengeProgress, ({ one }) => ({
+    characterChallenges: one(characterChallenges, {
+        fields: [characterChallengeProgress.characterChallengeId],
+        references: [characterChallenges.id],
     }),
 }));
 

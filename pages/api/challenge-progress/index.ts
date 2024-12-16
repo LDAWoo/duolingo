@@ -1,6 +1,7 @@
 import db from "@/db/drizzle";
-import { challengeProgress, challenges, userProgress } from "@/db/schema";
+import { challengeProgress, challenges, steaks, userProgress } from "@/db/schema";
 import { currentUserPages } from "@/lib/current-user-pages";
+import { Steak, SteakMap } from "@/lib/types";
 import { and, eq } from "drizzle-orm";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -19,6 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 error: "Unauthorized",
             });
         }
+
+        const userId = user.id;
 
         const currentUserProgress = await db.query.userProgress.findFirst({
             where: eq(userProgress.userId, user.id),
@@ -59,6 +62,110 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 })
                 .where(eq(challengeProgress.id, existingChallengeProgress.id));
 
+            const completedChallengeProgress = await db.query.challengeProgress.findFirst({
+                where: and(eq(challengeProgress.userId, user.id), eq(challengeProgress.completed, false)),
+            });
+
+            if (!completedChallengeProgress) {
+                const userSteaks = await db.query.steaks.findMany({
+                    where: eq(steaks.userId, user.id),
+                });
+
+                if (userSteaks.length === 0) {
+                    await db.insert(steaks).values([
+                        {
+                            userId: user.id,
+                            type: "longest",
+                        },
+                        {
+                            userId: user.id,
+                            type: "previous",
+                        },
+                        {
+                            userId: user.id,
+                            type: "current",
+                        },
+                    ]);
+                } else {
+                    const streakMap = userSteaks.reduce(
+                        (acc, steak) => {
+                            acc[steak.type] = steak;
+                            return acc;
+                        },
+                        {
+                            current: null,
+                            previous: null,
+                            longest: null,
+                        } as Record<"current" | "previous" | "longest", (typeof userSteaks)[number] | null>
+                    );
+
+                    const currentSteak = streakMap["current"];
+                    const previousSteak = streakMap["previous"];
+                    const longestSteak = streakMap["longest"];
+
+                    if (currentSteak) {
+                        const now = new Date();
+                        const todayStartOfDay = new Date(now.setHours(0, 0, 0, 0));
+                        const todayEndOfDay = new Date(now.setHours(23, 59, 59, 999));
+
+                        const currentSteakLastExtendedDate = new Date(currentSteak.lastExtendedDate);
+
+                        if (currentSteakLastExtendedDate < todayStartOfDay && currentSteakLastExtendedDate > todayEndOfDay) {
+                            const ALLOWED_MISS_DAYS = 1;
+
+                            const daysDifference = (now.getTime() - new Date(currentSteak.lastExtendedDate).getTime()) / (1000 * 60 * 60 * 24);
+
+                            if (daysDifference > ALLOWED_MISS_DAYS) {
+                                // Update previous streak
+                                if (previousSteak) {
+                                    await db
+                                        .update(steaks)
+                                        .set({
+                                            startDate: currentSteak.startDate,
+                                            endDate: currentSteak.endDate,
+                                        })
+                                        .where(and(eq(steaks.userId, userId), eq(steaks.type, "previous")));
+                                }
+
+                                // Reset current streak
+                                await db
+                                    .update(steaks)
+                                    .set({
+                                        startDate: now,
+                                        endDate: now,
+                                        lastExtendedDate: now,
+                                    })
+                                    .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
+                            } else {
+                                // Extend current streak
+                                await db
+                                    .update(steaks)
+                                    .set({
+                                        endDate: now,
+                                        lastExtendedDate: now,
+                                    })
+                                    .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
+                            }
+                        }
+                    }
+
+                    if (currentSteak && longestSteak) {
+                        const currentLength = (new Date(currentSteak.endDate).getTime() - new Date(currentSteak.startDate).getTime()) / (1000 * 60 * 60 * 24);
+                        const longestLength = (new Date(longestSteak.endDate).getTime() - new Date(longestSteak.startDate).getTime()) / (1000 * 60 * 60 * 24);
+
+                        if (currentLength > longestLength) {
+                            await db
+                                .update(steaks)
+                                .set({
+                                    startDate: currentSteak.startDate,
+                                    endDate: currentSteak.endDate,
+                                })
+                                .where(and(eq(steaks.userId, userId), eq(steaks.type, "longest")));
+                        }
+                    }
+                }
+            }
+
             await db
                 .update(userProgress)
                 .set({
@@ -67,7 +174,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 })
                 .where(eq(userProgress.userId, user.id));
 
-            return;
+            return res.status(200).json({
+                message: "Successfully",
+            });
         }
 
         await db.insert(challengeProgress).values({

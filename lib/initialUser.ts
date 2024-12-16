@@ -1,8 +1,8 @@
+import { getUserByEmail, getUserByUserId } from "@/db/queries";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./auth";
-import { getUserByEmail, getUserByUserId } from "@/db/queries";
 import { users } from "../db/schema";
+import { authOptions } from "./auth";
 
 import db from "@/db/drizzle";
 
@@ -20,14 +20,18 @@ export const initialUser = async () => {
     if (!user) {
         try {
             if (!existedUser) {
-                await db.insert(users).values({
-                    userId: userSession.user.id,
-                    email: userSession.user.email as string,
-                    displayName: userSession.user.name,
-                    username: userSession.user.name as string,
-                    imageSrc: userSession.user.image,
-                });
-                user = await getUserByUserId(userSession.user.id);
+                const currentUser = await db
+                    .insert(users)
+                    .values({
+                        userId: userSession.user.id,
+                        email: userSession.user.email as string,
+                        displayName: userSession.user.name,
+                        username: userSession.user.name as string,
+                        imageSrc: userSession.user.image,
+                    })
+                    .returning();
+
+                user = currentUser[0];
             } else {
                 await db
                     .update(users)

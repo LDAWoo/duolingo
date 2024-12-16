@@ -39,6 +39,10 @@ const config: Config = {
                     DEFAULT: "hsl(var(--fox))",
                     foreground: "hsl(var(--fox-foreground))",
                 },
+                steak: {
+                    DEFAULT: "hsl(var(--steak))",
+                    foreground: "hsl(var(--steak-foreground))",
+                },
                 popover: {
                     DEFAULT: "hsl(var(--popover))",
                     foreground: "hsl(var(--popover-foreground))",
