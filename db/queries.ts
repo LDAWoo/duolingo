@@ -1,11 +1,11 @@
 import { cache } from "react";
 import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
 import { currentUser } from "@/lib/current-user";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "./drizzle";
-import { alphabets, challengeProgress, courses, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
+import { alphabets, challengeProgress, courses, followers, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
 import { format } from "date-fns";
-import { Steak } from "@/lib/types";
+import { Follow, Steak } from "@/lib/types";
 
 type NormalizedData = {
     [key: string]: Steak;
@@ -21,6 +21,25 @@ export const getUserByUserId = cache(async (userId: string) => {
 
     const data = await db.query.users.findFirst({
         where: eq(users.userId, userId),
+    });
+
+    if (data) {
+        await saveToCache(cacheKey, data);
+    }
+
+    return data;
+});
+
+export const getUserById = cache(async (id: number) => {
+    const cacheKey = `user:${id}`;
+    const cachedUser = await getFromCache(cacheKey);
+
+    if (cachedUser) {
+        return cachedUser;
+    }
+
+    const data = await db.query.users.findFirst({
+        where: eq(users.id, id),
     });
 
     if (data) {
@@ -62,12 +81,21 @@ export const getCourses = cache(async () => {
     return data;
 });
 
-export const getUserProgress = cache(async () => {
-    const user = await currentUser();
+export const getUserProgress = cache(async (username?: string) => {
+    let user = await currentUser();
 
     if (!user) {
         return null;
     }
+
+    if (username) {
+        user = await getUserByUserName(username);
+    }
+
+    if (!user) {
+        return null;
+    }
+
     const userId = user.id;
 
     const data = await db.query.userProgress.findFirst({
@@ -334,12 +362,21 @@ export const getAlphabets = cache(async () => {
     return data;
 });
 
-export const getSteaks = cache(async () => {
-    const user = await currentUser();
+export const getSteaks = cache(async (username?: string) => {
+    let user = await currentUser();
 
     if (!user) {
         return null;
     }
+
+    if (username) {
+        user = await getUserByUserName(username);
+    }
+
+    if (!user) {
+        return null;
+    }
+
     const userId = user.id;
 
     const data = await db.query.steaks.findMany({
@@ -362,4 +399,86 @@ export const getSteaks = cache(async () => {
     }
 
     return null;
+});
+
+const getUserDetails = async (userId: number, userLoginId: number) => {
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: {
+            id: true,
+            userId: true,
+            username: true,
+            displayName: true,
+            imageSrc: true,
+        },
+    });
+
+    const progress = await db.query.userProgress.findFirst({
+        where: eq(userProgress.userId, userId),
+        columns: {
+            points: true,
+        },
+    });
+
+    const isFollowing = await db.query.followers.findFirst({
+        where: and(eq(followers.followerId, userLoginId), eq(followers.followingId, userId)),
+    });
+
+    const isFollowedBy = await db.query.followers.findFirst({
+        where: and(eq(followers.followerId, userId), eq(followers.followingId, userLoginId)),
+    });
+
+    const canFollow = userId !== userLoginId;
+
+    return {
+        id: user?.id || 0,
+        userId: user?.userId || "",
+        username: user?.username || "",
+        displayName: user?.displayName || "",
+        picture: user?.imageSrc || "",
+        totalXp: progress?.points || 0,
+        isFollowing: !!isFollowing,
+        isFollowedBy: !!isFollowedBy,
+        canFollow: canFollow,
+    };
+};
+
+export const getFollowers = cache(async (username?: string) => {
+    const userLogin = await currentUser();
+    if (!userLogin) return null;
+
+    const user = username ? await getUserByUserName(username) : null;
+    if (!user) return null;
+
+    const userId = user.id;
+
+    const followersData = await db.query.followers.findMany({
+        where: eq(followers.followingId, userId),
+    });
+
+    const followerIds = followersData.map((follower) => follower.followerId);
+
+    const followerDetails = await Promise.all(followerIds.map((followerId) => (followerId ? getUserDetails(followerId, userLogin.id) : null)));
+
+    return followerDetails;
+});
+
+export const getFollowings = cache(async (username?: string) => {
+    const userLogin = await currentUser();
+    if (!userLogin) return null;
+
+    const user = username ? await getUserByUserName(username) : null;
+    if (!user) return null;
+
+    const userId = user.id;
+
+    const followingData = await db.query.followers.findMany({
+        where: eq(followers.followerId, userId),
+    });
+
+    const followingIds = followingData.map((following) => following.followingId);
+
+    const followingDetails = await Promise.all(followingIds.map((followingId) => (followingId ? getUserDetails(followingId, userLogin.id) : null)));
+
+    return followingDetails;
 });

@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/routing";
 import UnitWrapper from "./unit-wrapper";
 import { levels } from "@/db/schema";
 import React from "react";
+import Loading from "@/components/global/loading";
 
 const LearnPage = async () => {
     const userProgressData = getUserProgress();

@@ -308,19 +308,58 @@ const config: Config = {
                     "100%": { maxHeight: "0" },
                 },
                 "loading-first": {
-                    "0%": { opacity: "0" },
-                    "50%": { opacity: ".5" },
-                    "100%": { opacity: "1" },
+                    "0%": {
+                        opacity: "1",
+                        transform: "scale(1)",
+                    },
+                    "33.3333%": {
+                        opacity: ".25",
+                        transform: "scale(.8)",
+                    },
+                    "66.6667%": {
+                        opacity: ".5",
+                        transform: "scale(.8)",
+                    },
+                    "100%": {
+                        opacity: "1",
+                        transform: "scale(1)",
+                    },
                 },
                 "loading-second": {
-                    "0%": { opacity: "0" },
-                    "50%": { opacity: ".5" },
-                    "100%": { opacity: "1" },
+                    "0%": {
+                        opacity: ".5",
+                        transform: "scale(.8)",
+                    },
+                    "33.3333%": {
+                        opacity: "1",
+                        transform: "scale(1)",
+                    },
+                    "66.6667%": {
+                        opacity: ".25",
+                        transform: "scale(.8)",
+                    },
+                    "100%": {
+                        opacity: ".5",
+                        transform: "scale(.8)",
+                    },
                 },
                 "loading-third": {
-                    "0%": { opacity: "0" },
-                    "50%": { opacity: ".5" },
-                    "100%": { opacity: "1" },
+                    "0%": {
+                        opacity: ".25",
+                        transform: "scale(.8)",
+                    },
+                    "33.3333%": {
+                        opacity: ".5",
+                        transform: "scale(.8)",
+                    },
+                    "66.6667%": {
+                        opacity: "1",
+                        transform: "scale(1)",
+                    },
+                    "100%": {
+                        opacity: ".25",
+                        transform: "scale(.8)",
+                    },
                 },
             },
             animation: {
@@ -347,9 +386,9 @@ const config: Config = {
                 "spin-slow": "spin 1.5s linear infinite",
                 expand: "expand 0.3s ease-in-out",
                 collapse: "collapse 0.3s ease-in-out",
-                "loading-first": "loading-first .6s ease-in-out infinite",
-                "loading-second": "loading-second .6s ease-in-out infinite",
-                "loading-third": "loading-third .6s ease-in-out infinite",
+                "loading-first": "loading-first 1.2s ease-in-out infinite",
+                "loading-second": "loading-second 1.2s ease-in-out infinite",
+                "loading-third": "loading-third 1.2s ease-in-out infinite",
             },
             transitionProperty: {
                 "max-height": "max-height",

@@ -68,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             if (!completedChallengeProgress) {
                 const userSteaks = await db.query.steaks.findMany({
-                    where: eq(steaks.userId, user.id),
+                    where: eq(steaks.userId, userId),
                 });
 
                 if (userSteaks.length === 0) {
@@ -103,14 +103,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const previousSteak = streakMap["previous"];
                     const longestSteak = streakMap["longest"];
 
-                    if (currentSteak) {
+                    if (currentSteak && longestSteak) {
                         const now = new Date();
                         const todayStartOfDay = new Date(now.setHours(0, 0, 0, 0));
                         const todayEndOfDay = new Date(now.setHours(23, 59, 59, 999));
 
                         const currentSteakLastExtendedDate = new Date(currentSteak.lastExtendedDate);
 
-                        if (currentSteakLastExtendedDate < todayStartOfDay && currentSteakLastExtendedDate > todayEndOfDay) {
+                        if (currentSteakLastExtendedDate < todayStartOfDay || currentSteakLastExtendedDate > todayEndOfDay) {
                             const ALLOWED_MISS_DAYS = 1;
 
                             const daysDifference = (now.getTime() - new Date(currentSteak.lastExtendedDate).getTime()) / (1000 * 60 * 60 * 24);
@@ -141,26 +141,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                 await db
                                     .update(steaks)
                                     .set({
+                                        startDate: currentSteak.startDate,
                                         endDate: now,
                                         lastExtendedDate: now,
                                     })
                                     .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
+
+                                const afterCurrentSteak = await db.query.steaks.findFirst({
+                                    where: and(eq(steaks.userId, userId), eq(steaks.type, "current")),
+                                });
+
+                                if (afterCurrentSteak && longestSteak) {
+                                    const currentLength = Math.ceil((new Date(afterCurrentSteak.endDate).getTime() - new Date(afterCurrentSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
+                                    const longestLength = Math.ceil((new Date(longestSteak.endDate).getTime() - new Date(longestSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
+
+                                    if (currentLength > longestLength) {
+                                        await db
+                                            .update(steaks)
+                                            .set({
+                                                startDate: afterCurrentSteak.startDate,
+                                                endDate: afterCurrentSteak.endDate,
+                                            })
+                                            .where(and(eq(steaks.userId, userId), eq(steaks.type, "longest")));
+                                    }
+                                }
                             }
-                        }
-                    }
-
-                    if (currentSteak && longestSteak) {
-                        const currentLength = (new Date(currentSteak.endDate).getTime() - new Date(currentSteak.startDate).getTime()) / (1000 * 60 * 60 * 24);
-                        const longestLength = (new Date(longestSteak.endDate).getTime() - new Date(longestSteak.startDate).getTime()) / (1000 * 60 * 60 * 24);
-
-                        if (currentLength > longestLength) {
-                            await db
-                                .update(steaks)
-                                .set({
-                                    startDate: currentSteak.startDate,
-                                    endDate: currentSteak.endDate,
-                                })
-                                .where(and(eq(steaks.userId, userId), eq(steaks.type, "longest")));
                         }
                     }
                 }

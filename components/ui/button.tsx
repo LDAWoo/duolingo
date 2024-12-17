@@ -18,6 +18,7 @@ const buttonVariants = cva("relative inline-flex items-center justify-center gap
             super: "bg-indigo-500 text-background hover:bg-indigo-500/90 border-indigo-600 border-b-4 active:border-b-0",
             superOutline: "bg-background text-indigo-500 hover:bg-background-hover",
             ghost: "bg-transparent text-slate-500 border-transparent border-0 hover:bg-background-hover",
+            ghostOutline: "bg-background text-disable-foreground translate-y-0 active:translate-y-[2px] before:bg-background before:hover:bg-disable before:hover:border-disable-foreground before:absolute before:-top-[2px] before:-left-[2px] before:-bottom-[2px] before:-right-[2px] before:border-2 before:border-disable before:rounded-2xl before:-z-[1] before:shadow-[0_2px_0_hsl(var(--disable))] before:hover:shadow-[0_2px_0_hsl(var(--disable-foreground))] active:before:shadow-none",
             sidebar: "bg-transparent text-wolf border-2 border-transparent hover:bg-background-hover transition-none",
             sidebarOutline: "bg-primary text-primary-foreground border-sky-300 border-2 hover:bg-sky-500/20 transition-none",
             none: "bg-none border-2 border-[#8B99A0] translate-y-0 active:translate-y-[2px] before:absolute before:-top-[2px] before:-left-[2px] before:-bottom-[2px] before:-right-[2px] before:border-2 before:border-[#8B99A0] before:shadow-[0_2px_0_#8B99A0] before:rounded-[15px] before:-z-[1] active:before:shadow-none",
