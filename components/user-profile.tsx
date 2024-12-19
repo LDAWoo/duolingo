@@ -80,7 +80,7 @@ const UserProfile = ({ displayName, username, activeCourse, createdAt, isVisitin
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-[1] flex-col-reverse">
+                <div className="flex flex-[1_0_118px] flex-col-reverse">
                     <button type="button" className="flex items-center -ml-1 p-[10px_0] self-end mb-[6px] hover:opacity-80">
                         <Image width={31} height={24} src={activeCourse.imageSrc} alt={activeCourse.title} className="rounded-md" />
                     </button>

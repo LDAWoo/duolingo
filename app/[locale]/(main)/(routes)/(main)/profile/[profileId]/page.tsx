@@ -29,12 +29,13 @@ const ProfileIdPage = async ({ params }: Props) => {
     if (!user.userProgress || !user.userProgress.activeCourse || !userProfile) {
         return redirect({ href: "/courses", locale: "en" });
     }
+    const userId = user.id;
 
-    const isVisitProfile = user.id !== userProfile.id;
+    const isVisitProfile = userId !== userProfile.id;
 
-    const isFollower = followers?.some((follow) => follow?.id === user?.userId);
+    const isFollower = followers?.some((follow) => follow?.id === userId);
 
-    const isFollowing = followings?.some((follow) => follow?.id === user?.userId);
+    const isFollowing = followings?.some((follow) => follow?.id === userId);
 
     return (
         <div className="flex flex-col md:flex-row-reverse gap-0 md:gap-[28px] md:px-6 md:pt-6">
