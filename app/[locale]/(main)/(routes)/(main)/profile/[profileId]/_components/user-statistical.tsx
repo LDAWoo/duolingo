@@ -5,10 +5,10 @@ import React from "react";
 
 type Props = {
     steaks: any;
-    points: number;
+    exp: number;
 };
 
-const UserStatistical = ({ steaks, points }: Props) => {
+const UserStatistical = ({ steaks, exp }: Props) => {
     return (
         <div>
             <div className="flex justify-between items-center mb-3">
@@ -30,14 +30,14 @@ const UserStatistical = ({ steaks, points }: Props) => {
                 </div>
 
                 <div className="rounded-[16px] p-[15px_24px] border-2 flex items-start overflow-hidden">
-                    <Image src={`${points > 0 ? "/experiences.svg" : "/experiences-inactive.svg"}`} width={21} height={26} alt="" className="mr-[15px]" />
+                    <Image src={`${exp > 0 ? "/experiences.svg" : "/experiences-inactive.svg"}`} width={21} height={26} alt="" className="mr-[15px]" />
                     <div className="flex-[1_0_auto] items-center leading-[20px]">
                         <h4
                             className={cn("font-bold mb-1 text-[calc(var(--type-base-size)+2px)]", {
-                                "text-disable-foreground": points === 0,
+                                "text-disable-foreground": exp === 0,
                             })}
                         >
-                            {points || 0}
+                            {exp || 0}
                         </h4>
                         <div className="text-muted-foreground text-[calc(var(--type-base-size)-2px)]">Tổng điểm KN</div>
                     </div>

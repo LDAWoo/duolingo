@@ -55,7 +55,7 @@ const CardFollow = ({ userId, picture, username, displayName, isFollowing, isFol
                     <div className="text-muted-foreground text-[calc(var(--type-base-size)-2px)] leading-none">{`${totalXp} KN`}</div>
                 </div>
             </Link>
-            {canFollow && isFollowedBy && (
+            {canFollow && (
                 <Button disabled={loading} onClick={handleClick} variant={following ? "ghostOutline" : "primary"} className="p-[6px_8px] before:rounded-[8px] w-[41px] h-7">
                     {!loading && <Image src={following ? "/user-check.svg" : "/user-plus.svg"} width={25} height={16} alt="" />}
                     {loading && (

@@ -10,6 +10,8 @@ type Props = {
 };
 
 const UserFollower = ({ followers, followings }: Props) => {
+    console.log(followers);
+
     return (
         <div className="border-2 rounded-[16px] overflow-hidden">
             <Tabs defaultValue="following" className="w-full">
@@ -29,7 +31,7 @@ const UserFollower = ({ followers, followings }: Props) => {
                     )}
                 </TabsContent>
                 <TabsContent value="follower" className="mt-2">
-                    {followers && followers.map((follower) => <CardFollow key={follower?.id} userId={follower?.id} canFollow={follower?.canFollow} displayName={follower?.displayName} username={follower?.username} isFollowing={follower?.isFollowing} picture={follower?.picture} totalXp={follower?.totalXp} />)}
+                    {followers && followers.map((follower) => <CardFollow key={follower?.id} userId={follower?.id} canFollow={follower?.canFollow} displayName={follower?.displayName} username={follower?.username} isFollowing={follower?.isFollowing} picture={follower?.picture} totalXp={follower?.totalXp} isFollowedBy={follower?.isFollowedBy} />)}
                     {followers?.length === 0 && (
                         <div className="p-[40px_30px_30px] flex items-center flex-col">
                             <div className="text-[calc(var(--type-base-size)+2px)] text-wolf text-center">Chưa có người theo dõi</div>

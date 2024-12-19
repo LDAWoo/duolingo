@@ -8,6 +8,7 @@ import { level2 } from "./lessons/lesson1/levels/level2";
 import { level3 } from "./lessons/lesson1/levels/level3";
 import { level4 } from "./lessons/lesson1/levels/level4";
 import { characters } from "./characters";
+import { leagues } from "./leagues";
 
 const sql = neon(process.env.DATABASE_URL ?? "");
 
@@ -18,11 +19,12 @@ const main = async () => {
         console.log("Seeding database");
         // await db.delete(schema.users);
         // await db.delete(schema.courses);
+        // await db.delete(schema.leagues)
         // await db.delete(schema.styles);
         // await db.delete(schema.userProgress);
         // await db.delete(schema.units);
-        await db.delete(schema.alphabets);
-        await db.delete(schema.characters);
+        // await db.delete(schema.alphabets);
+        // await db.delete(schema.characters);
         // await db.delete(schema.lessons);
         // await db.delete(schema.levels);
         // await db.delete(schema.challenges);
@@ -61,22 +63,23 @@ const main = async () => {
         //     },
         // ]);
 
-        await db.insert(schema.alphabets).values([
-            {
-                id: 1,
-                name: "vowels",
-                title: "Nguyên âm",
-                courseId: 1,
-            },
-            {
-                id: 2,
-                name: "consonants",
-                title: "Phụ âm",
-                courseId: 1,
-            },
-        ]);
+        // await db.insert(schema.alphabets).values([
+        //     {
+        //         id: 1,
+        //         name: "vowels",
+        //         title: "Nguyên âm",
+        //         courseId: 1,
+        //     },
+        //     {
+        //         id: 2,
+        //         name: "consonants",
+        //         title: "Phụ âm",
+        //         courseId: 1,
+        //     },
+        // ]);
 
-        await characters();
+        // await characters();
+        await leagues();
 
         // await db.insert(schema.units).values([
         //     {

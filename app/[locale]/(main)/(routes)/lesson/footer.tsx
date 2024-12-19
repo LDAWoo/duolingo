@@ -1,8 +1,10 @@
 "use client";
+import Loading from "@/components/global/loading";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocale } from "next-intl";
 import Image from "next/image";
+import React from "react";
 import { useKey } from "react-use";
 
 type Props = {
@@ -11,9 +13,10 @@ type Props = {
     answerCorrect?: string;
     disable?: boolean;
     lessonId?: string;
+    loading?: boolean;
 };
 
-const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId }: Props) => {
+const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId, loading }: Props) => {
     const locale = useLocale();
     useKey("Enter", onCheck, {}, [onCheck]);
 
@@ -67,18 +70,20 @@ const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId }: P
                         }}
                         className="w-full device:w-fit min-w-[150px] ml-auto text-[calc(var(--type-base-size)-1px)]"
                         size={"lg"}
+                        variant={"ghostOutline"}
                     >
                         {"Xem lại bài học"}
                     </Button>
                 )}
 
                 <div className="relative w-full p-[0_16px_16px_16px] device:p-0 flex device:justify-end">
-                    <Button variant={disable ? "locked" : status === "wrong" ? "danger" : "secondary"} disabled={disable} className={cn("w-full relative device:w-fit min-w-[150px] ml-auto text-[calc(var(--type-base-size)-1px)]")} size={"lg"} onClick={onCheck}>
+                    <Button variant={loading ? "secondary" : disable ? "locked" : status === "wrong" ? "danger" : "secondary"} disabled={disable} className={cn("w-full relative device:w-fit min-w-[150px] ml-auto text-[calc(var(--type-base-size)-1px)]")} size={"lg"} onClick={onCheck}>
                         {status === "none" && "Kiểm tra"}
                         {status === "correct" && "Tiếp tục"}
                         {status === "wrong" && "Tiếp tục"}
                         {status === "completed" && "Tiếp tục"}
-                        {status === "finish" && "Tiếp tục"}
+                        {!loading && status === "finish" && "Tiếp tục"}
+                        {loading && <Loading />}
                     </Button>
                 </div>
             </div>
@@ -86,4 +91,4 @@ const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId }: P
     );
 };
 
-export default Footer;
+export default React.memo(Footer);

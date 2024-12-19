@@ -372,7 +372,7 @@ const config: Config = {
                 "slide-up": "slide-up 0.5s ease forwards",
                 "slide-up-visible": "slide-up-visible .2s ease-in-out",
                 "slide-up-visible-background": "slide-up-visible-background .2s ease-in-out",
-                fly: "fly .3s ease-in-out forwards",
+                fly: "fly .2s ease-in-out forwards",
                 "zoom-border-in": "zoom-border-in .1s ease-in-out",
                 "slide-left": "slide-left .5s linear",
                 "zoom-fade": "zoom-fade 2.5s cubic-bezier(.26, .54, .57, 1) forwards",

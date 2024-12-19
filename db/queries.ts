@@ -3,7 +3,7 @@ import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
 import { currentUser } from "@/lib/current-user";
 import { and, eq } from "drizzle-orm";
 import db from "./drizzle";
-import { alphabets, challengeProgress, courses, followers, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
+import { alphabets, challengeProgress, courses, experiences, followers, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
 import { format } from "date-fns";
 import { Follow, Steak } from "@/lib/types";
 
@@ -62,6 +62,22 @@ export const getUserByUserName = cache(async (username: string) => {
         where: eq(users.username, decodedUsername),
     });
     return data;
+});
+
+export const getUserProfileByUserName = cache(async (username: string) => {
+    const decodedUsername = decodeURIComponent(username);
+    const userProfile = await db.query.users.findFirst({
+        where: eq(users.username, decodedUsername),
+    });
+
+    const steaks = await getSteaks(username);
+    const experiences = await getExperiences(username);
+
+    return {
+        ...userProfile,
+        ...experiences,
+        steaks,
+    };
 });
 
 export const getCourses = cache(async () => {
@@ -413,12 +429,19 @@ const getUserDetails = async (userId: number, userLoginId: number) => {
         },
     });
 
-    const progress = await db.query.userProgress.findFirst({
-        where: eq(userProgress.userId, userId),
+    const userExperiences = await db.query.experiences.findMany({
+        where: eq(experiences.userId, userId),
         columns: {
-            points: true,
+            score: true,
         },
     });
+
+    const totalExperiences = userExperiences.reduce((acc, experience) => {
+        if (experience.score) {
+            return acc + experience.score;
+        }
+        return acc;
+    }, 0);
 
     const isFollowing = await db.query.followers.findFirst({
         where: and(eq(followers.followerId, userLoginId), eq(followers.followingId, userId)),
@@ -436,7 +459,7 @@ const getUserDetails = async (userId: number, userLoginId: number) => {
         username: user?.username || "",
         displayName: user?.displayName || "",
         picture: user?.imageSrc || "",
-        totalXp: progress?.points || 0,
+        totalXp: totalExperiences || 0,
         isFollowing: !!isFollowing,
         isFollowedBy: !!isFollowedBy,
         canFollow: canFollow,
@@ -481,4 +504,43 @@ export const getFollowings = cache(async (username?: string) => {
     const followingDetails = await Promise.all(followingIds.map((followingId) => (followingId ? getUserDetails(followingId, userLogin.id) : null)));
 
     return followingDetails;
+});
+
+export const getExperiences = cache(async (username: string) => {
+    let user = await currentUser();
+
+    if (!user) {
+        return null;
+    }
+
+    if (username) {
+        user = await getUserByUserName(username);
+    }
+
+    if (!user) {
+        return null;
+    }
+
+    const userId = user.id;
+
+    const userExperiences = await db.query.experiences.findMany({
+        where: eq(experiences.userId, userId),
+        columns: {
+            score: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    const totalExperiences = userExperiences.reduce((acc, experience) => {
+        if (experience.score) {
+            return acc + experience.score;
+        }
+        return acc;
+    }, 0);
+
+    return {
+        totalExp: totalExperiences,
+        experiences: userExperiences,
+    };
 });

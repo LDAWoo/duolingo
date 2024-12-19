@@ -4,6 +4,7 @@ import React from "react";
 import { Portal } from "@radix-ui/react-portal";
 import { cn } from "@/lib/utils";
 import { useAudio } from "react-use";
+import MatchContent from "./_components/match-content";
 
 type Option = typeof challengeParts.$inferSelect;
 
@@ -29,7 +30,7 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
         autoPlay: false,
     });
 
-    const duration = 300;
+    const duration = 200;
     const [dragging, setDragging] = React.useState(false);
     const [results, setResults] = React.useState<Option[]>([]);
     const resultContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -125,6 +126,8 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
         const offsetX = startX - clientX;
         const offsetY = startY - clientY;
 
+        setResults((prev) => prev.filter((result) => result.id !== option.id));
+
         setAnimationState({
             visible: false,
             start: { x: startX, y: startY },
@@ -138,7 +141,6 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
         const handleMouseMove = (e: MouseEvent) => {
             setDragging(true);
 
-            setResults((prev) => prev.filter((result) => result.id !== option.id));
             setAnimationState((prev) => {
                 if (!prev) return null;
                 return {
@@ -355,28 +357,7 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
                                     <div className="h-[60px] w-full border-b-2" key={option.id} id={`result-${index}`} />
                                 ))}
                                 <div ref={resultRef} className="absolute top-0 z-0 flex flex-wrap">
-                                    {results.map((result) => (
-                                        <div id={result.id.toString()} className="mx-1 h-[60px] inline-flex flex-col justify-center" key={result.id}>
-                                            <span className="inline-flex flex-col">
-                                                <button
-                                                    onClick={(e) => {
-                                                        if (animationState?.visible) return;
-                                                        handleResultClick(result, e);
-                                                    }}
-                                                    draggable={status === "none"}
-                                                    onDragStart={(e) => handleDragStartResult(result, e)}
-                                                    type="button"
-                                                    className={cn("flex-[1] cursor-pointer duration-500 inline-flex relative p-[12px_16px] border-2 border-b-4 active:border-b-0 rounded-[12px] before:absolute before:-top-[2px] before:-left-[2px] before:-right-[2px] before:-bottom-[2px] before:bg-background before:border-2 before:rounded-[12px] before:border-b-[-2px] before:shadow-[0_2px_0_var(--border)] active:before:shadow-none", {
-                                                        "cursor-default": status !== "none",
-                                                    })}
-                                                >
-                                                    <span className="relative inline-flex justify-center w-full items-center">
-                                                        <span className="text-[calc(var(--type-base-size)+1px)] leading-[22px]">{result.text}</span>
-                                                    </span>
-                                                </button>
-                                            </span>
-                                        </div>
-                                    ))}
+                                    <MatchContent disable={animationState?.visible || false} status={status} options={results} disabledButtons={[]} onClick={handleResultClick} onDragStart={handleDragStartResult} />
                                 </div>
                             </div>
                         </div>
@@ -384,29 +365,7 @@ const ChallengeMatch: React.FC<Props> = ({ status, options, onSelectOption }) =>
                 </div>
                 <div ref={optionContainerRef} className="flex flex-wrap justify-center">
                     <div ref={optionRef} className="flex justify-center flex-wrap w-full">
-                        {options.map((option) => (
-                            <div className="h-[60px] mx-1 inline-flex flex-col justify-center" key={option.text}>
-                                <span className="flex flex-col">
-                                    <button
-                                        onClick={(e) => {
-                                            if (animationState?.visible) return;
-                                            handleOptionClick(option, e);
-                                        }}
-                                        draggable={status === "none"}
-                                        onDragStart={(e) => handleDragStartOption(option, e)}
-                                        type="button"
-                                        disabled={disabledButtons.includes(option.id)}
-                                        className={cn("option-button disabled:pointer-events-none disabled:cursor-default before:disabled:shadow-none before:disabled:bg-disable disabled:text-disable bg-background flex-[1] outline-none cursor-pointer inline-flex relative p-[12px_16px] border-2 border-b-4 active:border-b-0 rounded-[12px] before:absolute before:-top-[2px] before:-left-[2px] before:-right-[2px] before:-bottom-[2px] before:bg-background before:border-2 before:rounded-[12px] before:border-b-[-2px] before:shadow-[0_2px_0_var(--border)] active:before:shadow-none", {
-                                            "cursor-default": status !== "none",
-                                        })}
-                                    >
-                                        <span className="relative inline-flex justify-center w-full items-center">
-                                            <span className="text-[calc(var(--type-base-size)+1px)] leading-[22px]">{option.text}</span>
-                                        </span>
-                                    </button>
-                                </span>
-                            </div>
-                        ))}
+                        <MatchContent className="option-button" disable={animationState?.visible || false} status={status} options={options} disabledButtons={disabledButtons} onClick={handleOptionClick} onDragStart={handleDragStartOption} />
                     </div>
                 </div>
                 {animationState?.visible && (

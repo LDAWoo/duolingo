@@ -15,6 +15,79 @@ export const users = pgTable("users", {
     isActive: boolean("is_active").default(true),
 });
 
+export const userRelations = relations(users, ({ many }) => ({
+    followers: many(followers),
+    userProgress: many(userProgress),
+    steaks: many(steaks),
+    leaderboards: many(leaderboards),
+    experiences: many(experiences),
+}));
+
+export const userProgress = pgTable("user_progress", {
+    id: serial("id").primaryKey(),
+    hearts: integer("hearts").notNull().default(5),
+    points: integer("points").notNull().default(0),
+    gems: integer("gems").notNull().default(500),
+    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+    activeCourseId: integer("active_course_id").references(() => courses.id, { onDelete: "cascade" }),
+});
+
+export const userProgressRelations = relations(userProgress, ({ one }) => ({
+    activeCourse: one(courses, {
+        fields: [userProgress.activeCourseId],
+        references: [courses.id],
+    }),
+}));
+
+export const experiences = pgTable("experiences", {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+    score: integer("score").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const experienceRelations = relations(experiences, ({ one }) => ({
+    user: one(users, {
+        fields: [experiences.userId],
+        references: [users.id],
+    }),
+}));
+
+export const leagues = pgTable("leagues", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    description: text("description"),
+    imageSrc: text("image_src").notNull(),
+    order: integer("order").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const leagueRelations = relations(leagues, ({ many }) => ({
+    leaderboards: many(leaderboards),
+}));
+
+export const leaderboards = pgTable("leaderboards", {
+    id: serial("id").primaryKey(),
+    leagueId: integer("league_id").references(() => leagues.id, { onDelete: "cascade" }),
+    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
+    score: integer("score").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const leaderboardRelations = relations(leaderboards, ({ one, many }) => ({
+    user: one(users, {
+        fields: [leaderboards.userId],
+        references: [users.id],
+    }),
+    league: one(leagues, {
+        fields: [leaderboards.leagueId],
+        references: [leagues.id],
+    }),
+}));
+
 export const steaksEnum = pgEnum("steak_type", ["current", "previous", "longest"]);
 
 export const steaks = pgTable(
@@ -57,28 +130,6 @@ export const followersRelations = relations(followers, ({ one }) => ({
     following: one(users, {
         fields: [followers.followingId],
         references: [users.id],
-    }),
-}));
-
-export const userRelations = relations(users, ({ many }) => ({
-    followers: many(followers),
-    userProgress: many(userProgress),
-    steaks: many(steaks),
-}));
-
-export const userProgress = pgTable("user_progress", {
-    id: serial("id").primaryKey(),
-    hearts: integer("hearts").notNull().default(5),
-    points: integer("points").notNull().default(5),
-    gems: integer("gems").notNull().default(500),
-    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
-    activeCourseId: integer("active_course_id").references(() => courses.id, { onDelete: "cascade" }),
-});
-
-export const userProgressRelations = relations(userProgress, ({ one }) => ({
-    activeCourse: one(courses, {
-        fields: [userProgress.activeCourseId],
-        references: [courses.id],
     }),
 }));
 

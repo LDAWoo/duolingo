@@ -1,8 +1,7 @@
 import db from "@/db/drizzle";
-import { challengeProgress, challenges, steaks, userProgress } from "@/db/schema";
+import { challengeProgress, challenges, experiences, steaks, userProgress } from "@/db/schema";
 import { currentUserPages } from "@/lib/current-user-pages";
-import { Steak, SteakMap } from "@/lib/types";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -110,60 +109,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                         const currentSteakLastExtendedDate = new Date(currentSteak.lastExtendedDate);
 
-                        if (currentSteakLastExtendedDate < todayStartOfDay || currentSteakLastExtendedDate > todayEndOfDay) {
-                            const ALLOWED_MISS_DAYS = 1;
+                        const isUpdatedToday = currentSteakLastExtendedDate >= todayStartOfDay && currentSteakLastExtendedDate <= todayEndOfDay;
 
-                            const daysDifference = (now.getTime() - new Date(currentSteak.lastExtendedDate).getTime()) / (1000 * 60 * 60 * 24);
+                        if (isUpdatedToday) {
+                            await updateExperienceForDay(userId);
 
-                            if (daysDifference > ALLOWED_MISS_DAYS) {
-                                // Update previous streak
-                                if (previousSteak) {
-                                    await db
-                                        .update(steaks)
-                                        .set({
-                                            startDate: currentSteak.startDate,
-                                            endDate: currentSteak.endDate,
-                                        })
-                                        .where(and(eq(steaks.userId, userId), eq(steaks.type, "previous")));
-                                }
+                            return res.status(200).json({
+                                message: "Successfully",
+                            });
+                        }
 
-                                // Reset current streak
-                                await db
-                                    .update(steaks)
-                                    .set({
-                                        startDate: now,
-                                        endDate: now,
-                                        lastExtendedDate: now,
-                                    })
-                                    .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
-                            } else {
-                                // Extend current streak
+                        const ALLOWED_MISS_DAYS = 1;
+
+                        const daysDifference = (now.getTime() - new Date(currentSteak.lastExtendedDate).getTime()) / (1000 * 60 * 60 * 24);
+
+                        if (daysDifference > ALLOWED_MISS_DAYS) {
+                            // Update previous streak
+                            if (previousSteak) {
                                 await db
                                     .update(steaks)
                                     .set({
                                         startDate: currentSteak.startDate,
-                                        endDate: now,
-                                        lastExtendedDate: now,
+                                        endDate: currentSteak.endDate,
                                     })
-                                    .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
+                                    .where(and(eq(steaks.userId, userId), eq(steaks.type, "previous")));
+                            }
 
-                                const afterCurrentSteak = await db.query.steaks.findFirst({
-                                    where: and(eq(steaks.userId, userId), eq(steaks.type, "current")),
-                                });
+                            // Reset current streak
+                            await db
+                                .update(steaks)
+                                .set({
+                                    startDate: now,
+                                    endDate: now,
+                                    lastExtendedDate: now,
+                                })
+                                .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
+                        } else {
+                            // Extend current streak
+                            await db
+                                .update(steaks)
+                                .set({
+                                    startDate: currentSteak.startDate,
+                                    endDate: now,
+                                    lastExtendedDate: now,
+                                })
+                                .where(and(eq(steaks.userId, userId), eq(steaks.type, "current")));
 
-                                if (afterCurrentSteak && longestSteak) {
-                                    const currentLength = Math.ceil((new Date(afterCurrentSteak.endDate).getTime() - new Date(afterCurrentSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
-                                    const longestLength = Math.ceil((new Date(longestSteak.endDate).getTime() - new Date(longestSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
+                            const afterCurrentSteak = await db.query.steaks.findFirst({
+                                where: and(eq(steaks.userId, userId), eq(steaks.type, "current")),
+                            });
 
-                                    if (currentLength > longestLength) {
-                                        await db
-                                            .update(steaks)
-                                            .set({
-                                                startDate: afterCurrentSteak.startDate,
-                                                endDate: afterCurrentSteak.endDate,
-                                            })
-                                            .where(and(eq(steaks.userId, userId), eq(steaks.type, "longest")));
-                                    }
+                            if (afterCurrentSteak && longestSteak) {
+                                const currentLength = Math.ceil((new Date(afterCurrentSteak.endDate).getTime() - new Date(afterCurrentSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
+                                const longestLength = Math.ceil((new Date(longestSteak.endDate).getTime() - new Date(longestSteak.startDate).getTime()) / (1000 * 60 * 60 * 24));
+
+                                if (currentLength > longestLength) {
+                                    await db
+                                        .update(steaks)
+                                        .set({
+                                            startDate: afterCurrentSteak.startDate,
+                                            endDate: afterCurrentSteak.endDate,
+                                        })
+                                        .where(and(eq(steaks.userId, userId), eq(steaks.type, "longest")));
                                 }
                             }
                         }
@@ -171,13 +178,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
             }
 
-            await db
-                .update(userProgress)
-                .set({
-                    hearts: Math.min(currentUserProgress.hearts + 1, 5),
-                    points: currentUserProgress.points + 10,
-                })
-                .where(eq(userProgress.userId, user.id));
+            await updateExperienceForDay(userId);
 
             return res.status(200).json({
                 message: "Successfully",
@@ -190,13 +191,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             completed: true,
         });
 
-        await db
-            .update(userProgress)
-            .set({
-                points: currentUserProgress.points + 10,
-            })
-            .where(eq(userProgress.userId, user.id));
-
         return res.status(200).json({
             message: "Successfully",
         });
@@ -205,5 +199,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({
             message: "Internal Error",
         });
+    }
+}
+
+async function updateExperienceForDay(userId: number) {
+    try {
+        const now = new Date();
+        const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+
+        const usersWithExperienceToday = await db
+            .select({
+                userId: experiences.userId,
+                score: experiences.score,
+            })
+            .from(experiences)
+            .where(and(eq(experiences.userId, userId), gte(experiences.createdAt, startOfDay), lte(experiences.createdAt, endOfDay)));
+
+        if (usersWithExperienceToday.length === 0) {
+            await db.insert(experiences).values({
+                score: 10,
+                userId,
+            });
+            return;
+        }
+
+        const totalScoreToday = usersWithExperienceToday.reduce((acc, experience) => {
+            if (experience.score) {
+                return acc + experience.score;
+            }
+            return acc;
+        }, 0);
+
+        await db
+            .update(experiences)
+            .set({
+                score: totalScoreToday + 10,
+                updatedAt: now,
+            })
+            .where(and(eq(experiences.userId, userId), gte(experiences.createdAt, startOfDay), lte(experiences.createdAt, endOfDay)));
+    } catch (err) {
+        console.error("Error updating user experience:", err);
     }
 }

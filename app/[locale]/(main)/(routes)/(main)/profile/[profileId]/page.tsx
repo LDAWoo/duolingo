@@ -1,7 +1,7 @@
 import UserAvatar from "@/components/user-avatar";
 import UserProfile from "@/components/user-profile";
 import UserProgress from "@/components/user-progress";
-import { getFollowers, getFollowings, getSteaks, getUserByUserName, getUserProgress } from "@/db/queries";
+import { getFollowers, getFollowings, getSteaks, getUserByUserName, getUserProfileByUserName, getUserProgress } from "@/db/queries";
 import { redirect } from "@/i18n/routing";
 import React from "react";
 import UserStatistical from "./_components/user-statistical";
@@ -16,22 +16,20 @@ type Props = {
 const ProfileIdPage = async ({ params }: Props) => {
     const { profileId } = await params;
 
-    const userProfileData = getUserByUserName(profileId);
     const userProgressData = getUserProgress();
-    const userProfileProgressData = getUserProgress(profileId);
     const steakData = getSteaks();
-    const steakUserProfileData = getSteaks(profileId);
+    const userProfileData = getUserProfileByUserName(profileId);
 
     const followerData = getFollowers(profileId);
     const followingData = getFollowings(profileId);
 
-    const [userProfile, userProgress, userProfileProgress, steaks, steaksUserProfile, followers, followings] = await Promise.all([userProfileData, userProgressData, userProfileProgressData, steakData, steakUserProfileData, followerData, followingData]);
+    const [userProgress, steaks, followers, followings, userProfile] = await Promise.all([userProgressData, steakData, followerData, followingData, userProfileData]);
 
-    if (!userProgress || !userProgress.activeCourse || !userProfileProgress) {
+    if (!userProgress || !userProgress.activeCourse || !userProfile) {
         return redirect({ href: "/courses", locale: "en" });
     }
 
-    const isVisitProfile = userProgress.id !== userProfileProgress.id;
+    const isVisitProfile = userProgress.id !== userProfile.id;
 
     const isFollower = followers?.some((follow) => follow?.id === userProgress?.userId);
 
@@ -71,7 +69,7 @@ const ProfileIdPage = async ({ params }: Props) => {
                     totalFollower={followers?.length || 0}
                     totalFollowing={followings?.length || 0}
                 />
-                <UserStatistical steaks={steaksUserProfile} points={userProfileProgress?.points} />
+                <UserStatistical steaks={userProfile.steaks} exp={userProfile?.totalExp || 0} />
             </div>
         </div>
     );

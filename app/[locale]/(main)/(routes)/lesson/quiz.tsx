@@ -252,10 +252,11 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
     };
 
     if (!challenge) {
+        const loading = pending === "pending";
         return (
             <>
-                <Finish points={challenges.length * 10} hearts={hearts} />
-                <Footer disable={pending === "pending"} status={"finish"} onCheck={() => router.push({ pathname: "/learn" })} />
+                <Finish points={Math.max(challenges.length * 10, 100)} exp={10} totalCompleted={challenges.length + 1} />
+                <Footer disable={loading} loading={loading} status={"finish"} onCheck={() => router.push({ pathname: "/learn" })} />
             </>
         );
     }

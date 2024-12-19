@@ -57,16 +57,6 @@ export async function POST(req: Request) {
                 });
             }
 
-            const existingFollowBack = await db.query.followers.findFirst({
-                where: and(eq(followers.followerId, userId), eq(followers.followingId, user.id)),
-            });
-
-            if (existingFollowBack) {
-                return new NextResponse("The user is already following you, no back-follow allowed", {
-                    status: 400,
-                });
-            }
-
             await db.insert(followers).values({
                 followerId: user.id,
                 followingId: userId,

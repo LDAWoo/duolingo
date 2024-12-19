@@ -7,17 +7,17 @@ import CardFinish from "./card-finish";
 import { useAudio } from "react-use";
 
 type Props = {
+    exp: number;
     points: number;
-    hearts: number;
+    totalCompleted: number;
 };
 
-const Finish = ({ hearts, points }: Props) => {
+const Finish = ({ points, exp, totalCompleted }: Props) => {
     const [audio] = useAudio({
         src: "/audio/finish.mp3",
         autoPlay: true,
         loop: false,
     });
-    const challengeComplete = 2;
 
     return (
         <div className="flex-1 p-[24px_16px]">
@@ -29,12 +29,12 @@ const Finish = ({ hearts, points }: Props) => {
                 </div>
                 <div className="m-[20px_0]">
                     <div className="mt-5 text-bee font-bold text-[calc(var(--type-base-size)+6px)] device:text-[calc(var(--type-base-size)+14px)]">Hoàn thành bài học!</div>
-                    {/* <div className="text-muted-foreground text-[calc(var(--type-base-size)+1px)]">Bạn đã hoàn thành {challengeComplete} thử thách nghe trong bài học này</div> */}
+                    {totalCompleted && <div className="text-muted-foreground text-[calc(var(--type-base-size)+1px)]">Bạn đã hoàn thành {totalCompleted} thử thách nghe trong bài học này</div>}
                 </div>
 
                 <div className="flex gap-[10px] device:gap-4">
-                    <CardFinish variant="experiences" value={hearts} />
-                    <CardFinish variant="points" value={points} />
+                    <CardFinish variant="experiences" value={exp} />
+                    <CardFinish variant="points" value={points} duration={2} />
                 </div>
 
                 <div className="hidden">{audio}</div>

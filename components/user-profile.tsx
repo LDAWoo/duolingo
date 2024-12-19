@@ -90,32 +90,30 @@ const UserProfile = ({ displayName, username, activeCourse, createdAt, isVisitin
             {isVisiting && (
                 <div className="flex flex-[0_1_auto] items-start">
                     <div className="flex-[1_1_auto] flex gap-[10px]">
-                        {!isFollowing && (
-                            <Button
-                                variant={follower ? "ghostOutline" : "primary"}
-                                className={cn("w-full", {
-                                    "text-secondary": follower,
-                                })}
-                                disabled={loading}
-                                size={"lg"}
-                                onClick={handleClick}
-                            >
-                                {!loading && (
-                                    <>
-                                        <Image src={`${follower ? "/user-check.svg" : "/user-plus.svg"}`} alt="" width={25} height={16} />
-                                        Theo dõi
-                                    </>
-                                )}
+                        <Button
+                            variant={follower ? "ghostOutline" : "primary"}
+                            className={cn("w-full", {
+                                "text-secondary": follower,
+                            })}
+                            disabled={loading}
+                            size={"lg"}
+                            onClick={handleClick}
+                        >
+                            {!loading && (
+                                <>
+                                    <Image src={`${follower ? "/user-check.svg" : "/user-plus.svg"}`} alt="" width={25} height={16} />
+                                    {isFollowing && !follower ? "Theo dõi lại" : "Theo dõi"}
+                                </>
+                            )}
 
-                                {loading && (
-                                    <Loading
-                                        className={cn({
-                                            "bg-swan": follower,
-                                        })}
-                                    />
-                                )}
-                            </Button>
-                        )}
+                            {loading && (
+                                <Loading
+                                    className={cn({
+                                        "bg-swan": follower,
+                                    })}
+                                />
+                            )}
+                        </Button>
                         <Button variant={"ghostOutline"} size={"lg"}>
                             <Image src={"/flag.svg"} alt="" width={20} height={20} />
                             Báo cáo
