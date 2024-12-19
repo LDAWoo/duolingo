@@ -56,6 +56,30 @@ export const getUserByEmail = cache(async (email: string) => {
     return data;
 });
 
+export const getUser = cache(async () => {
+    let user = await currentUser();
+
+    if (!user) {
+        return null;
+    }
+    const username = user.username;
+    const userProgressData = await db.query.userProgress.findFirst({
+        where: eq(userProgress.userId, user.id),
+        with: {
+            activeCourse: true,
+        },
+    });
+    const steaks = await getSteaks(username);
+    const experiences = await getExperiences(username);
+
+    return {
+        ...user,
+        ...experiences,
+        userProgress: userProgressData,
+        steaks,
+    };
+});
+
 export const getUserByUserName = cache(async (username: string) => {
     const decodedUsername = decodeURIComponent(username);
     const data = await db.query.users.findFirst({

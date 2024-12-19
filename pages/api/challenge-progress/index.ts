@@ -220,6 +220,8 @@ async function updateExperienceForDay(userId: number) {
             await db.insert(experiences).values({
                 score: 10,
                 userId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             });
             return;
         }
@@ -235,7 +237,7 @@ async function updateExperienceForDay(userId: number) {
             .update(experiences)
             .set({
                 score: totalScoreToday + 10,
-                updatedAt: now,
+                updatedAt: new Date(),
             })
             .where(and(eq(experiences.userId, userId), gte(experiences.createdAt, startOfDay), lte(experiences.createdAt, endOfDay)));
     } catch (err) {

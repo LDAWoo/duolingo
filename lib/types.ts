@@ -26,3 +26,8 @@ export type Follow = {
     isFollowedBy: boolean;
     canFollow: boolean;
 } | null;
+
+export interface ChartDataPoint {
+    x: string;
+    y: number;
+}

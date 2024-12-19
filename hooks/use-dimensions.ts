@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 interface Dimension {
-    width: number | undefined;
-    height: number | undefined;
+    width: number;
+    height: number;
 }
 
 export const useDimensions = (ref: { current: HTMLElement | null }): Dimension => {
@@ -13,7 +13,7 @@ export const useDimensions = (ref: { current: HTMLElement | null }): Dimension =
 
     const handleDimensions = useCallback(() => {
         const element = ref.current && ref.current.getBoundingClientRect();
-        setDimensions({ width: element?.width, height: element?.height });
+        setDimensions({ width: element?.width || 0, height: element?.height || 0 });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ref.current]);
 
