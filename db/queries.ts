@@ -1,11 +1,11 @@
-import { cache } from "react";
-import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
 import { currentUser } from "@/lib/current-user";
-import { and, eq } from "drizzle-orm";
-import db from "./drizzle";
-import { alphabets, challengeProgress, courses, experiences, followers, lessons, steaks, steaksEnum, units, userProgress, users } from "./schema";
+import { getFromCache, saveToCache, shuffle } from "@/lib/redis";
+import { Steak } from "@/lib/types";
 import { format } from "date-fns";
-import { Follow, Steak } from "@/lib/types";
+import { and, eq } from "drizzle-orm";
+import { cache } from "react";
+import db from "./drizzle";
+import { alphabets, challengeProgress, courses, experiences, followers, lessons, steaks, units, userProgress, users } from "./schema";
 
 type NormalizedData = {
     [key: string]: Steak;

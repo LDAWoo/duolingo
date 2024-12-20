@@ -23,6 +23,18 @@ const config: Config = {
                     DEFAULT: "hsl(var(--wolf))",
                     foreground: "hsl(var(--wolf-foreground))",
                 },
+                polar: {
+                    DEFAULT: "hsl(var(--polar))",
+                    foreground: "hsl(var(--polar-foreground))",
+                },
+                frog: {
+                    DEFAULT: "hsl(var(--frog))",
+                    foreground: "hsl(var(--frog-foreground))",
+                },
+                ant: {
+                    DEFAULT: "hsl(var(--ant))",
+                    foreground: "hsl(var(--ant-foreground))",
+                },
                 swan: {
                     DEFAULT: "hsl(var(--swan))",
                     foreground: "hsl(var(--swan-foreground))",

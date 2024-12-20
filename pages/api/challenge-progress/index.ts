@@ -1,7 +1,8 @@
 import db from "@/db/drizzle";
-import { challengeProgress, challenges, experiences, steaks, userProgress } from "@/db/schema";
+import { challengeProgress, challenges, experiences, leaderboards, steaks, userProgress } from "@/db/schema";
 import { currentUserPages } from "@/lib/current-user-pages";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { endOfWeek, startOfWeek } from "date-fns";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -113,6 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                         if (isUpdatedToday) {
                             await updateExperienceForDay(userId);
+                            await updateLeaderboardForWeek(userId);
 
                             return res.status(200).json({
                                 message: "Successfully",
@@ -179,6 +181,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             await updateExperienceForDay(userId);
+            await updateLeaderboardForWeek(userId);
 
             return res.status(200).json({
                 message: "Successfully",
@@ -242,5 +245,50 @@ async function updateExperienceForDay(userId: number) {
             .where(and(eq(experiences.userId, userId), gte(experiences.createdAt, startOfDay), lte(experiences.createdAt, endOfDay)));
     } catch (err) {
         console.error("Error updating user experience:", err);
+    }
+}
+
+async function updateLeaderboardForWeek(userId: number) {
+    try {
+        const currentDate = new Date();
+        const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
+        const endOfCurrentWeek = endOfWeek(currentDate, { weekStartsOn: 1 });
+
+        const totalScoreForWeek = await db
+            .select({
+                score: sql<number>`SUM(${experiences.score})`.as("score"),
+            })
+            .from(experiences)
+            .where(and(eq(experiences.userId, userId), gte(experiences.createdAt, startOfCurrentWeek), lte(experiences.createdAt, endOfCurrentWeek)))
+            .then((result) => result[0]?.score ?? 0);
+
+        const existingLeaderboardEntry = await db
+            .select({
+                userId: leaderboards.userId,
+            })
+            .from(leaderboards)
+            .where(and(eq(leaderboards.userId, userId), gte(leaderboards.createdAt, startOfCurrentWeek), lte(leaderboards.createdAt, endOfCurrentWeek)));
+
+        if (existingLeaderboardEntry.length === 0) {
+            await db.insert(leaderboards).values({
+                userId,
+                score: totalScoreForWeek,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                leagueId: 1,
+            });
+
+            return;
+        }
+
+        await db
+            .update(leaderboards)
+            .set({
+                score: totalScoreForWeek,
+                updatedAt: new Date(),
+            })
+            .where(and(eq(leaderboards.userId, userId), gte(leaderboards.createdAt, startOfCurrentWeek), lte(leaderboards.createdAt, endOfCurrentWeek)));
+    } catch (err) {
+        console.error("Error updating leaderboard for week:", err);
     }
 }

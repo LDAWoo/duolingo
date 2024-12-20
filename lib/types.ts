@@ -31,3 +31,18 @@ export interface ChartDataPoint {
     x: string;
     y: number;
 }
+
+export type Rank = {
+    username: string;
+    userId: number;
+    avatarUrl: string;
+    score: number;
+    displayName: string;
+};
+
+export type Leaderboard = {
+    leagueId: number;
+    leagueName: string;
+    leagueSrc: string;
+    ranks: Rank[];
+};
