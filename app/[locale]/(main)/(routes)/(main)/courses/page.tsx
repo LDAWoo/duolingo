@@ -1,12 +1,22 @@
 import React from "react";
 import { getCourses, getUserProgress } from "@/db/queries";
 import ListCourses from "./list-courses";
+import { currentUser } from "@/lib/current-user";
+import { redirect } from "@/i18n/routing";
 
 const CoursesPage = async () => {
+    const userData = await currentUser();
     const coursesData = getCourses();
     const userProgressData = getUserProgress();
 
-    const [courses, userProgress] = await Promise.all([coursesData, userProgressData]);
+    const [user, courses, userProgress] = await Promise.all([userData, coursesData, userProgressData]);
+
+    if (!user) {
+        return redirect({
+            href: "/",
+            locale: "en",
+        });
+    }
 
     return (
         <div className="pt-6">

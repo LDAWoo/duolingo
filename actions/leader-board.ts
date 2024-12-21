@@ -11,7 +11,7 @@ export const getLeaderboard = async () => {
         const user = await currentUser();
 
         if (!user) {
-            throw new Error("Unauthorized");
+            return null;
         }
 
         const userId = user.id;
@@ -25,7 +25,7 @@ export const getLeaderboard = async () => {
             .limit(1);
 
         if (!currentUserLeaderboard) {
-            throw new Error("User is not in any league");
+            return null;
         }
 
         const { leagueId } = currentUserLeaderboard;
@@ -69,7 +69,7 @@ export const getLeaderboard = async () => {
         );
 
         if (!leagueWithUsers.rows || leagueWithUsers.rows.length === 0) {
-            throw new Error("League data not found");
+            return null;
         }
 
         return leagueWithUsers.rows[0] as Leaderboard;
