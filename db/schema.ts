@@ -302,6 +302,36 @@ export const challenges = pgTable("challenges", {
     imageSrc: text("image_src"),
 });
 
+export const challengeQuestions = pgTable("challenge_questions", {
+    id: serial("id").primaryKey(),
+    challengeId: integer("challenge_id").references(() => challenges.id, { onDelete: "cascade" }),
+    isNew: boolean("is_new").default(false),
+    question: text("question").notNull(),
+    order: integer("order").notNull(),
+    audioSrc: text("audio_src"),
+});
+
+export const challengeQuestionTranslations = pgTable("challenge_question_translations", {
+    id: serial("id").primaryKey(),
+    challengeQuestionId: integer("challenge_question_id").references(() => challengeQuestions.id, { onDelete: "cascade" }),
+    translation: text("translation").notNull(),
+});
+
+export const challengeQuestionTranslationRelations = relations(challengeQuestionTranslations, ({ one }) => ({
+    challengeQuestion: one(challengeQuestions, {
+        fields: [challengeQuestionTranslations.challengeQuestionId],
+        references: [challengeQuestions.id],
+    }),
+}));
+
+export const challengeQuestionRelations = relations(challengeQuestions, ({ one, many }) => ({
+    challenge: one(challenges, {
+        fields: [challengeQuestions.challengeId],
+        references: [challenges.id],
+    }),
+    challengeQuestionTranslations: many(challengeQuestionTranslations),
+}));
+
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
     level: one(levels, {
         fields: [challenges.leverId],
@@ -310,6 +340,7 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
     challengeOptions: many(challengeOptions),
     challengeParts: many(challengeParts),
     challengeProgress: many(challengeProgress),
+    challengeQuestions: many(challengeQuestions),
 }));
 
 export const challengeOptions = pgTable("challenge_options", {

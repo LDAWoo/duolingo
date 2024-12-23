@@ -65,9 +65,8 @@ const challenge = async () => {
             id: 8,
             leverId: 1,
             type: "MATCH",
-            question: "Hello",
-            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/falstaffen/031926720e053a9b2d6877da6620da19",
             order: 8,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/falstaffen/031926720e053a9b2d6877da6620da19",
         },
         {
             id: 9,
@@ -80,17 +79,15 @@ const challenge = async () => {
             id: 10,
             leverId: 1,
             type: "MATCH",
-            question: "Hello, Ben",
-            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/zarien/cfd359c6f1571787e54e39816b1f1d00",
             order: 10,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/miranda/fb63192500daf006e9201c29035fcfcf",
         },
         {
             id: 11,
             leverId: 1,
             type: "MATCH",
-            question: "water and tea",
-            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/linen/1c7ed06786c698ff68ab2c47b8700326",
             order: 11,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/eddyen/1a8003ab80afda69f3739d0623b7ccb0",
         },
         {
             id: 12,
@@ -120,6 +117,107 @@ const challenge = async () => {
             question: "Good morning, Lisa!",
             order: 15,
             audioSrc: "https://d1vq87e9lcf771.cloudfront.net/lucyen/da6589f3f7001f7458cf964c0a0730f2",
+        },
+    ]);
+};
+
+const challengeQuestion = async () => {
+    await db.insert(schema.challengeQuestions).values([
+        {
+            id: 1,
+            isNew: true,
+            question: "Hello",
+            challengeId: 8,
+            order: 1,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/falstaffen/031926720e053a9b2d6877da6620da19",
+        },
+        {
+            id: 2,
+            question: "Hello",
+            challengeId: 10,
+            order: 1,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/miranda/68544a04ae4502ac014342338234ebd4",
+        },
+        {
+            id: 3,
+            question: "Ben",
+            challengeId: 10,
+            order: 2,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/miranda/c9f72fe5dd9a93b27b4c6199e6dc0124",
+        },
+        {
+            id: 4,
+            question: "water",
+            challengeId: 11,
+            order: 1,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/eddyen/677d36ebdf487c0a934ce8adb6ea7c4f",
+        },
+        {
+            id: 5,
+            question: "and",
+            isNew: true,
+            challengeId: 11,
+            order: 2,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/eddyen/f8bbe7530cfb5e8dbaf1ad18c2a005d0",
+        },
+        {
+            id: 6,
+            question: "tea",
+            challengeId: 11,
+            order: 3,
+            audioSrc: "https://d1vq87e9lcf771.cloudfront.net/eddyen/583f299988a289dc687a96665bfeecdb",
+        },
+    ]);
+};
+
+const challengeQuestionTranslation = async () => {
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "vâng",
+            challengeQuestionId: 1,
+        },
+        {
+            translation: "phải",
+            challengeQuestionId: 1,
+        },
+        {
+            translation: "có",
+            challengeQuestionId: 1,
+        },
+    ]);
+
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "Xin chào",
+            challengeQuestionId: 2,
+        },
+    ]);
+
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "Ben",
+            challengeQuestionId: 3,
+        },
+    ]);
+
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "nước",
+            challengeQuestionId: 4,
+        },
+    ]);
+
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "và",
+            challengeQuestionId: 5,
+        },
+    ]);
+
+    await db.insert(schema.challengeQuestionTranslations).values([
+        {
+            translation: "trà",
+            challengeQuestionId: 6,
         },
     ]);
 };
@@ -672,6 +770,8 @@ const challengeParts = async () => {
 export const level1 = async () => {
     try {
         await challenge();
+        await challengeQuestion();
+        await challengeQuestionTranslation();
         await challengeOptions();
         await challengeParts();
     } catch (error) {

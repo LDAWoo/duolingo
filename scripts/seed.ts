@@ -79,7 +79,7 @@ const main = async () => {
         // ]);
 
         // await characters();
-        await leagues();
+        // await leagues();
 
         // await db.insert(schema.units).values([
         //     {
@@ -254,7 +254,7 @@ const main = async () => {
         //     },
         // ]);
 
-        // await level1();
+        await level1();
         // await level2();
         // await level3();
         // await level4();

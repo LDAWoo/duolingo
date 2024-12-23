@@ -17,26 +17,50 @@ type Props = {
 const QuestionBubble = ({ question, audioSrc, imageSrc }: Props) => {
     const lottieRef = React.useRef<LottieRefCurrentProps>(null);
 
-    const [audio, _, controls] = useAudio({
-        src: audioSrc || "/audio/none.mp3",
+    const [audio, _, __, ref] = useAudio({
+        src: audioSrc,
         autoPlay: false,
     });
 
     const handlePlay = React.useCallback(() => {
-        if (audioSrc) {
-            lottieRef.current?.play();
-            controls.play();
-        }
-    }, [controls, audio, lottieRef]);
+        if (!audioSrc) return;
+        if (ref.current) {
+            ref.current.pause();
+            ref.current.currentTime = 0;
 
-    const handleCompleted = React.useCallback(() => {
-        const totalFrames = animationData.op;
-        lottieRef.current?.goToAndStop(totalFrames, false);
-    }, [controls]);
+            if (audioSrc) {
+                ref.current.src = audioSrc;
+                ref.current.load();
+                ref.current.oncanplay = () => {
+                    ref.current?.play();
+                };
+            }
+        }
+    }, [ref, audioSrc]);
+
+    React.useEffect(() => {
+        if (ref.current) {
+            ref.current.load();
+
+            if (audioSrc) {
+                ref.current.oncanplay = () => {
+                    ref.current?.play();
+                };
+            }
+        }
+    }, [audioSrc]);
+
+    React.useEffect(() => {
+        lottieRef.current?.goToAndStop(800, false);
+    }, [lottieRef.current]);
 
     return (
         <div className="flex items-center gap-x-4 mb-6">
-            {imageSrc && <Image src={imageSrc} height={180} width={180} alt="" />}
+            {imageSrc && (
+                <div className="aspect-[118/180] relative w-[30%] flex-shrink-0">
+                    <Image src={imageSrc} fill alt="" />
+                </div>
+            )}
             <div className="flex flex-row items-center flex-[1]">
                 {!question && audioSrc && (
                     <div className="flex items-center justify-center flex-[1]">
@@ -46,7 +70,7 @@ const QuestionBubble = ({ question, audioSrc, imageSrc }: Props) => {
                                     "--path-speaker-color": "hsl(var(--background))",
                                 }}
                             >
-                                <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} onComplete={handleCompleted} />
+                                <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} />
                             </div>
                         </Button>
                     </div>
@@ -65,7 +89,7 @@ const QuestionBubble = ({ question, audioSrc, imageSrc }: Props) => {
                                                     "--path-speaker-color": "hsl(var(--primary-foreground))",
                                                 }}
                                             >
-                                                <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} onComplete={handleCompleted} />
+                                                <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} />
                                             </div>
                                         </>
                                     )}

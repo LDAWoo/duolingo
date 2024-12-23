@@ -324,6 +324,12 @@ export const getLesson = cache(async (id?: number) => {
                             challengeParts: {
                                 orderBy: (challengeParts, { asc }) => [asc(challengeParts.order)],
                             },
+                            challengeQuestions: {
+                                with: {
+                                    challengeQuestionTranslations: true,
+                                },
+                                orderBy: (challengeQuestions, { asc }) => [asc(challengeQuestions.order)],
+                            },
                         },
                     },
                 },

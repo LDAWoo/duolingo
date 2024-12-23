@@ -7,29 +7,47 @@ import { useAudio } from "react-use";
 import { LottieRefCurrentProps } from "lottie-react";
 
 type Props = {
-    question?: string | null;
     audioSrc?: string | null;
 };
 
-const QuestionAudio = ({ question, audioSrc }: Props) => {
+const QuestionAudio = ({ audioSrc }: Props) => {
     const lottieRef = React.useRef<LottieRefCurrentProps>(null);
 
-    const [audio, _, controls] = useAudio({
+    const [audio, _, __, ref] = useAudio({
         src: audioSrc || "/audio/none.mp3",
         autoPlay: false,
     });
 
     const handlePlay = React.useCallback(() => {
-        if (audioSrc) {
-            lottieRef.current?.play();
-            controls.play();
-        }
-    }, [controls, audioSrc]);
+        if (ref.current) {
+            ref.current.pause();
+            ref.current.currentTime = 0;
 
-    const handleCompleted = React.useCallback(() => {
-        const totalFrames = animationData.op;
-        lottieRef.current?.goToAndStop(totalFrames, false);
+            if (audioSrc) {
+                ref.current.src = audioSrc;
+                ref.current.load();
+                lottieRef.current?.play();
+                ref.current.oncanplay = () => {
+                    ref.current?.play();
+                };
+            }
+        }
+    }, [ref, audioSrc]);
+
+    React.useEffect(() => {
+        if (ref.current) {
+            ref.current.load();
+            if (audioSrc) {
+                ref.current.oncanplay = () => {
+                    ref.current?.play();
+                };
+            }
+        }
     }, []);
+
+    React.useEffect(() => {
+        lottieRef.current?.goToAndStop(800, false);
+    }, [lottieRef.current]);
 
     return (
         <div className="mx-auto mb-5 device:mb-0">
@@ -40,7 +58,7 @@ const QuestionAudio = ({ question, audioSrc }: Props) => {
                         "--path-speaker-color": "hsl(var(--background))",
                     }}
                 >
-                    <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} onComplete={handleCompleted} />
+                    <LottieWrapper lottieRef={lottieRef} animationData={animationData} loop={false} />
                 </div>
             </Button>
         </div>

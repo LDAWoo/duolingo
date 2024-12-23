@@ -20,24 +20,41 @@ type Props = {
 };
 
 const Card = ({ id, index, length, imageSrc, audioSrc, text, shortcut, selected, onClick, disable, status, type }: Props) => {
-    const [audio, _, controls] = useAudio({
+    const [audio, _, __, ref] = useAudio({
         src: audioSrc || "/audio/none.mp3",
+        autoPlay: false,
     });
 
     const handleClick = React.useCallback(() => {
         if (disable) return;
-
-        controls.play();
         onClick();
-    }, [disable, onClick, controls]);
+
+        if (ref.current) {
+            ref.current.pause();
+            ref.current.currentTime = 0;
+            if (audioSrc) {
+                ref.current.src = audioSrc;
+                ref.current.load();
+                ref.current.oncanplay = () => {
+                    ref.current?.play();
+                };
+            }
+        }
+    }, [disable, onClick, ref, audioSrc]);
 
     useKey(shortcut, handleClick, {}, [handleClick]);
+
+    React.useEffect(() => {
+        if (ref.current) {
+            ref.current.load();
+        }
+    }, []);
 
     return (
         <div
             onClick={handleClick}
             className={cn("border-[rgb(229, 229,229)] relative inline-flex outline-none select-none rounded-[12px] border-2 border-b-4 border-transparent cursor-pointer active:translate-y-[2px] p-3 before:absolute -before:z-[1] before:-top-[2px] before:-left-[2px] before:-right-[2px] before:-bottom-[2px] before:border-2 before:rounded-[12px] before:bg-background hover:before:bg-[rgb(247,247,247)] before:shadow-[0_2px_0_#E5E5E5] active:before:shadow-none", {
-                "before:border-[rgb(132,216,255)] before:shadow-[0_2px_0_rgb(132,216,255)]": selected,
+                "before:border-[rgb(132,216,255)] before:shadow-[0_2px_0_rgb(132,216,255)] before:bg-primary before:hover:bg-primary": selected,
                 "border:-[rgb(132,216,255)] before:border-[rgb(132,216,255)] before:shadow-[0_2px_0_rgb(132,216,255)]": selected && status === "wrong",
                 "before:bg-[rgb(215,255,184)] hover:before:bg-[rgb(215,255,184)] before:border-[rgb(165,237,110)] before:shadow-[0_2px_0_rgb(165,237,110)]": selected && status === "correct",
                 "pointer-events-none hover:bg-transparent cursor-default": disable,

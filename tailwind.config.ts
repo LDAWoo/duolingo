@@ -35,6 +35,10 @@ const config: Config = {
                     DEFAULT: "hsl(var(--ant))",
                     foreground: "hsl(var(--ant-foreground))",
                 },
+                beetle: {
+                    DEFAULT: "hsl(var(--beetle))",
+                    foreground: "hsl(var(--beetle-foreground))",
+                },
                 swan: {
                     DEFAULT: "hsl(var(--swan))",
                     foreground: "hsl(var(--swan-foreground))",
