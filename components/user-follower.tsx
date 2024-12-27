@@ -10,8 +10,6 @@ type Props = {
 };
 
 const UserFollower = ({ followers, followings }: Props) => {
-    console.log(followers);
-
     return (
         <div className="border-2 rounded-[16px] overflow-hidden">
             <Tabs defaultValue="following" className="w-full">

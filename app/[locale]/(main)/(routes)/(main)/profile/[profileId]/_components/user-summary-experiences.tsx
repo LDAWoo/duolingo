@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import "chart.js/auto";
 import { vi } from "date-fns/locale";
 import { format } from "date-fns";
 import Chart from "@/components/global/chart";

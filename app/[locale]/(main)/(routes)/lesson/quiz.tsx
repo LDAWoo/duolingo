@@ -2,7 +2,7 @@
 import { challengeOptions, challengeParts, challengeQuestions, challengeQuestionTranslations, challenges } from "@/db/schema";
 import { useRouter } from "@/i18n/routing";
 import { useModal } from "@/providers/modal-provider";
-import React from "react";
+import React, { act } from "react";
 import Audio from "./audio";
 import Challenge from "./challenge";
 import ChallengeFill from "./challenge-fill";
@@ -14,6 +14,8 @@ import QuestionAudio from "./question-audio";
 import QuestionBubble from "./question-bubble";
 import QuestionConversation from "./question-conversation";
 import ChallengeQuestion from "./challenge-question";
+import qs from "query-string";
+import axios from "axios";
 
 type Props = {
     initialLessonId: number;
@@ -53,6 +55,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
     const [selectedMatchOption, setSelectedMatchOption] = React.useState<ChallengePartOption[] | []>([]);
     const [status, setStatus] = React.useState<"correct" | "wrong" | "none">("none");
     const [pending, setPending] = React.useState<"pending" | "none" | "completed">("none");
+    const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
         workerRef.current = new Worker(new URL("/workers/challenge-progress-workers.js", process.env.NEXT_PUBLIC_URL));
@@ -84,9 +87,22 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
 
     const optionsParts = challenge?.challengeParts;
 
-    const onNext = React.useCallback(() => {
-        setActiveIndex((prev) => prev + 1);
-    }, []);
+    const onNext = async () => {
+        if (activeIndex === challenges.length - 1) {
+            const url = qs.stringifyUrl({ url: "/api/steaks" });
+            try {
+                setLoading(true);
+                await axios.post(url);
+                setLoading(false);
+                setActiveIndex((prev) => prev + 1);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
+            }
+        } else {
+            setActiveIndex((prev) => prev + 1);
+        }
+    };
 
     const onSelect = React.useCallback(
         (id: number) => {
@@ -259,7 +275,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
         const loading = pending === "pending";
         return (
             <>
-                <Finish points={Math.max(challenges.length * 10, 100)} exp={10} totalCompleted={challenges.length + 1} />
+                <Finish points={Math.max(100)} exp={10} totalCompleted={challenges.length} />
                 <Footer disable={loading} loading={loading} status={"finish"} onCheck={() => router.push({ pathname: "/learn" })} />
             </>
         );
@@ -274,7 +290,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                         <div className="flex flex-col gap-2">
                             <h1 className="font-bold leading-[1.25] text-[calc(var(--type-base-size)+8px)] min-[700px]:text-[calc(var(--type-base-size)+14px)]">{getTitle()}</h1>
                         </div>
-                        <div className="grid items device:items-center mb-2">
+                        <div className="grid items-start device:items-center mb-2">
                             {challenge.type !== "CONVERSATION" && challenge?.challengeQuestions.length > 0 && <ChallengeQuestion questions={challenge?.challengeQuestions} audioSrc={challenge?.audioSrc} imageSrc={challenge?.imageSrc} />}
                             {(challenge.type === "ASSIST" || (challenge.type === "MATCH" && challenge?.challengeQuestions.length === 0)) && <QuestionBubble question={challenge?.question} audioSrc={challenge?.audioSrc} imageSrc={challenge.imageSrc} />}
                             {challenge.type === "LISTEN" && <QuestionAudio audioSrc={challenge?.audioSrc} />}
@@ -287,7 +303,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
                 </div>
             </div>
             <Audio status={status} />
-            <Footer disable={onDisableButton()} status={status} answerCorrect={onAnswerCorrect()} onCheck={onContinue} />
+            <Footer loading={loading} disable={onDisableButton() || loading} status={status} answerCorrect={onAnswerCorrect()} onCheck={onContinue} />
         </>
     );
 };

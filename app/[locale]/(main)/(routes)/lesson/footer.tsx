@@ -63,7 +63,7 @@ const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId, loa
                     </Button>
                 )}
 
-                {status === "finish" && (
+                {/* {status === "finish" && (
                     <Button
                         onClick={() => {
                             //modal
@@ -74,14 +74,14 @@ const Footer = ({ onCheck, status, disable = false, answerCorrect, lessonId, loa
                     >
                         {"Xem lại bài học"}
                     </Button>
-                )}
+                )} */}
 
                 <div className="relative w-full p-[0_16px_16px_16px] device:p-0 flex device:justify-end">
                     <Button variant={loading ? "secondary" : disable ? "locked" : status === "wrong" ? "danger" : "secondary"} disabled={disable} className={cn("w-full relative device:w-fit min-w-[150px] ml-auto text-[calc(var(--type-base-size)-1px)]")} size={"lg"} onClick={onCheck}>
-                        {status === "none" && "Kiểm tra"}
-                        {status === "correct" && "Tiếp tục"}
-                        {status === "wrong" && "Tiếp tục"}
-                        {status === "completed" && "Tiếp tục"}
+                        {!loading && status === "none" && "Kiểm tra"}
+                        {!loading && status === "correct" && "Tiếp tục"}
+                        {!loading && status === "wrong" && "Tiếp tục"}
+                        {!loading && status === "completed" && "Tiếp tục"}
                         {!loading && status === "finish" && "Tiếp tục"}
                         {loading && <Loading />}
                     </Button>

@@ -2,15 +2,14 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import React, { useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
+import Counter from "@/components/global/counter";
 
 type Props = {
     variant: "points" | "experiences";
-    value: number;
-    duration?: number;
+    children?: React.ReactNode;
 };
 
-const CardFinish = ({ variant, value, duration = 3 }: Props) => {
-    const digits = Array.from({ length: value + 1 }, (_, i) => i);
+const CardFinish = ({ variant, children }: Props) => {
     const isBeeVariant = variant === "experiences";
     const borderClass = isBeeVariant ? "border-bee text-bee" : "border-secondary text-secondary";
     const bgClass = isBeeVariant ? "bg-bee" : "bg-secondary";
@@ -24,22 +23,8 @@ const CardFinish = ({ variant, value, duration = 3 }: Props) => {
             </motion.div>
 
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, duration: 0.5, ease: "linear" }} className={cn("flex items-center justify-center text-center font-bold text-[calc(var(--type-base-size)+2px)] h-[70px] bg-background rounded-[16px] border-2", borderClass)}>
-                {isBeeVariant ? <Image src="/experiences.svg" width={19} height={24} alt="" className="mr-1" /> : <Image src="/destination.svg" width={28} height={25} alt="" className="mr-1" />}
-
-                <div
-                    className={cn("h-5 overflow-hidden mt-1 relative", {
-                        "pr-5": variant === "points",
-                    })}
-                >
-                    <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1 }}>
-                        {digits.map((digit) => (
-                            <motion.div key={digit} initial={{ y: "-100%" }} animate={{ y: `-${100 * value}%` }} transition={{ duration }} className="relative leading-[20px]">
-                                {digit}
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                    {variant === "points" && <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 -right-1">%</div>}
-                </div>
+                {isBeeVariant ? <Image src="/experiences.svg" width={19} height={25} alt="" className="mr-1" /> : <Image src="/destination.svg" width={28} height={25} alt="" className="mr-1" />}
+                {children}
             </motion.div>
         </div>
     );

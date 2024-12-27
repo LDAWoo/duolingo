@@ -72,7 +72,7 @@ const ChallengeQuestion = ({ questions, audioSrc, imageSrc }: Props) => {
     return (
         <div className="flex items-center">
             {imageSrc && (
-                <div className="aspect-[118/180] relative w-[30%] flex-shrink-0">
+                <div className="aspect-[118/170] relative w-[30%] flex-shrink-0">
                     <Image src={imageSrc} fill alt="" />
                 </div>
             )}
@@ -84,7 +84,7 @@ const ChallengeQuestion = ({ questions, audioSrc, imageSrc }: Props) => {
                 <div className="relative">
                     <div
                         className={cn("border-2 rounded-[12px] p-[10px_14px] bg-background", {
-                            "border-0 p-0": !audioSrc,
+                            "border-0 p-0": !audioSrc && !imageSrc,
                         })}
                     >
                         <div className="flex items-start w-full text-[calc(var(--type-base-size)+2px)]">
@@ -137,7 +137,7 @@ const ChallengeQuestion = ({ questions, audioSrc, imageSrc }: Props) => {
                             </span>
                         </div>
                     </div>
-                    {audioSrc && <ArrowQuestion className="w-[18px] h-5 text-background absolute -left-4 top-3" />}
+                    {(audioSrc || imageSrc) && <ArrowQuestion className="w-[18px] h-5 text-background absolute -left-4 top-3" />}
                 </div>
             </div>
             {audio}

@@ -5,6 +5,7 @@ import React from "react";
 import animatedData from "@/public/animation/finish-oscar.json";
 import CardFinish from "./card-finish";
 import { useAudio } from "react-use";
+import Counter from "@/components/global/counter";
 
 type Props = {
     exp: number;
@@ -33,8 +34,12 @@ const Finish = ({ points, exp, totalCompleted }: Props) => {
                 </div>
 
                 <div className="flex gap-[10px] device:gap-4">
-                    <CardFinish variant="experiences" value={exp} />
-                    <CardFinish variant="points" value={points} duration={2} />
+                    <CardFinish variant="experiences">
+                        <Counter to={exp} from={0} />
+                    </CardFinish>
+                    <CardFinish variant="points">
+                        <Counter to={points} from={0} suffix="%" />
+                    </CardFinish>
                 </div>
 
                 <div className="hidden">{audio}</div>

@@ -1,4 +1,3 @@
-import { steaks } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import React from "react";
