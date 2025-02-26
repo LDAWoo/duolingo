@@ -1,12 +1,12 @@
 "use client";
 import { recoveryHearts } from "@/actions/user-progress";
-import { useRouter } from "@/i18n/routing";
 import { useModal } from "@/providers/modal-provider";
 import Image from "next/image";
 import React from "react";
 import Loading from "../global/loading";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useRouter } from "next/navigation";
 
 const HeartsModal = () => {
     const router = useRouter();
@@ -53,9 +53,7 @@ const HeartsModal = () => {
                             type="button"
                             onClick={() => {
                                 onClose();
-                                router.push({
-                                    pathname: "/learn",
-                                });
+                                router.push("/learn");
                             }}
                             className="h-[46px] border-none text-primary-foreground hover:opacity-80 text-[calc(var(--type-base-size)-3px)] uppercase font-bold flex justify-center items-center w-full"
                         >

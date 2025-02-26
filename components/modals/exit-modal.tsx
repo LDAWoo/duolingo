@@ -2,11 +2,11 @@
 
 import { useExitModal } from "@/hooks/use-exit-modal";
 import useMounted from "@/hooks/use-mounted";
-import { useRouter } from "@/i18n/routing";
 import React from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 export const ExitModal = () => {
     const router = useRouter();
@@ -34,9 +34,7 @@ export const ExitModal = () => {
                         <Button
                             onClick={() => {
                                 onClose();
-                                router.push({
-                                    pathname: "/learn",
-                                });
+                                router.push("/learn");
                             }}
                             variant={"dangerOutline"}
                             className="mt-1 w-full hover:bg-transparent text-[calc(var(--type-base-size)-3px)]"

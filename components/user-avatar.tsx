@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import { Button } from "./ui/button";
 import Image from "next/image";
 import { EditIcon } from "./icons";
-import { useRouter } from "@/i18n/routing";
+import { useRouter } from "next/navigation";
 
 interface UserAvatarProps {}
 

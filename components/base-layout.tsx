@@ -1,7 +1,3 @@
-import { routing } from "@/i18n/routing";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
 import React from "react";
 
 declare module "react" {
@@ -22,16 +18,9 @@ type Props = {
 };
 
 export default async function BaseLayout({ children, locale, className }: Props) {
-    if (!routing.locales.includes(locale as any)) {
-        notFound();
-    }
-    const messages = await getMessages();
-
     return (
         <html lang={locale} suppressHydrationWarning>
-            <body className={className}>
-                <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-            </body>
+            <body className={className}>{children}</body>
         </html>
     );
 }

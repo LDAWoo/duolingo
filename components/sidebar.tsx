@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import React from "react";
 import SidebarItem from "./sidebar-item";
-import { Link } from "@/i18n/routing";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Button } from "./ui/button";
 import { signOut } from "next-auth/react";
 import { users } from "@/db/schema";
+import Link from "next/link";
 
 type Props = {
     className?: string;

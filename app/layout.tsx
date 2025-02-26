@@ -1,19 +1,49 @@
-import { ReactNode } from "react";
+import BaseLayout from "@/components/base-layout";
+import localFont from "next/font/local";
+import React from "react";
 import "@/styles/globals.css";
 import "@/styles/reset.css";
 
+const lingo = localFont({
+    src: [
+        {
+            path: "./fonts/font-lingo.woff2",
+            weight: "400",
+            style: "normal",
+        },
+        {
+            path: "./fonts/font-lingo.woff2",
+            weight: "400",
+            style: "italic",
+        },
+        {
+            path: "./fonts/font-lingo-bold.woff2",
+            weight: "700",
+            style: "normal",
+        },
+        {
+            path: "./fonts/font-lingo-bold.woff2",
+            weight: "700",
+            style: "italic",
+        },
+    ],
+});
+
 type Props = {
-    children: ReactNode;
+    children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 };
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: Props) {
     return {
-        title: "404 Not Found",
+        title: "Duolingo",
     };
 }
 
-// Since we have a `not-found.tsx` page on the root, a layout file
-// is required, even if it's just passing children through.
-export default function RootLayout({ children }: Props) {
-    return children;
+export default async function RootLayout({ children }: Props) {
+    return (
+        <BaseLayout className={lingo.className} locale={"en"}>
+            {children}
+        </BaseLayout>
+    );
 }

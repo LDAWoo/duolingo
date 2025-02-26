@@ -1,56 +1,62 @@
-import { getToken } from "next-auth/jwt";
-import { withAuth } from "next-auth/middleware";
-import createMiddleware from "next-intl/middleware";
-import { NextRequest, NextResponse } from "next/server";
-import { routing } from "./i18n/routing";
+// import { getToken } from "next-auth/jwt";
+// import { withAuth } from "next-auth/middleware";
+// import { NextRequest, NextResponse } from "next/server";
 
-const publicPages = ["/", "/not-found"];
+// const publicPages = ["/", "/not-found"];
 
-const intlMiddleware = createMiddleware(routing);
+// // Tạo regex kiểm tra trang public
+// const publicPathnameRegex = RegExp(`^(${publicPages.join("|")})/?$`, "i");
 
-const authMiddleware = withAuth(
-    async function middleware(req) {
-        const token = await getToken({ req, secret: process.env.JWT_SECRET });
-        const pathName = req.nextUrl.pathname;
-        const locale = pathName.split("/")[1];
+// // Middleware xác thực
+// const authMiddleware = withAuth(
+//     async function middleware(req) {
+//         const token = await getToken({ req, secret: process.env.JWT_SECRET });
+//         const isAuth = !!token;
 
-        const isAuth = !!token;
+//         if (!isAuth) {
+//             let from = req.nextUrl.pathname;
+//             if (req.nextUrl.search) {
+//                 from += req.nextUrl.search;
+//             }
+//             return NextResponse.redirect(new URL(`/?from=${encodeURIComponent(from)}`, req.url));
+//         }
 
-        if (!isAuth) {
-            let from = req.nextUrl.pathname;
-            if (req.nextUrl.search) {
-                from += req.nextUrl.search;
-            }
-            return NextResponse.redirect(new URL(`/${locale}/?from=${encodeURIComponent(from)}`, req.url));
-        }
+//         return NextResponse.next();
+//     },
+//     {
+//         callbacks: {
+//             async authorized() {
+//                 return true; // Luôn gọi middleware, quyền truy cập sẽ được kiểm tra bên trong
+//             },
+//         },
+//     }
+// );
 
-        // if (isAuth) {
-        //     return NextResponse.redirect(new URL(`/${locale}`, req.url));
-        // }
+// // Middleware chính
+// export default function middleware(req: NextRequest) {
+//     const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
 
-        return null;
-    },
-    {
-        callbacks: {
-            async authorized() {
-                return true;
-            },
-        },
-    }
-);
+//     if (isPublicPage) {
+//         return NextResponse.next();
+//     } else {
+//         return (authMiddleware as any)(req);
+//     }
+// }
 
-export default function middleware(req: NextRequest) {
-    const locale = routing.locales.join("|");
-    const publicPathnameRegex = RegExp(`^(/(${locale}))?(${publicPages.flatMap((p) => (p === "/" ? ["", "/"] : p)).join("|")}|/not-found)/?$`, "i");
-    const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
+// // Config matcher để áp dụng middleware cho các đường dẫn phù hợp
+// export const config = {
+//     matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+// };
+// middleware
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-    if (isPublicPage) {
-        return intlMiddleware(req);
-    } else {
-        return (authMiddleware as any)(req);
-    }
+export function middleware(req: NextRequest) {
+    const url = req.nextUrl;
+    const searchParams = url.searchParams.toString();
+    let hostname = req.headers;
 }
 
 export const config = {
-    matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)", "/(de|en)/:path*"],
+    matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

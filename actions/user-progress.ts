@@ -3,12 +3,12 @@
 import db from "@/db/drizzle";
 import { getCourseById, getUserProgress } from "@/db/queries";
 import { userProgress } from "@/db/schema";
-import { redirect } from "@/i18n/routing";
 import { currentUser } from "@/lib/current-user";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-export const upsertUserProgress = async (locale: string, courseId: number) => {
+export const upsertUserProgress = async (courseId: number) => {
     const user = await currentUser();
 
     if (!user) {
@@ -39,12 +39,9 @@ export const upsertUserProgress = async (locale: string, courseId: number) => {
         });
     }
 
-    revalidatePath(`/${locale}/courses`);
-    revalidatePath(`/${locale}/learn`);
-    redirect({
-        locale,
-        href: "/learn",
-    });
+    revalidatePath(`/courses`);
+    revalidatePath(`/learn`);
+    redirect("/learn");
 };
 
 export const recoveryHearts = async () => {
@@ -75,6 +72,6 @@ export const recoveryHearts = async () => {
             })
             .where(eq(userProgress.userId, userId));
 
-        revalidatePath(`/en/learn`);
+        revalidatePath(`/learn`);
     }
 };

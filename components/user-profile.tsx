@@ -9,7 +9,7 @@ import Loading from "./global/loading";
 import qs from "query-string";
 import { EVENT_TYPE, Follow } from "@/lib/types";
 import axios from "axios";
-import { useRouter } from "@/i18n/routing";
+import { useRouter } from "next/navigation";
 
 type Props = {
     displayName?: string | null;

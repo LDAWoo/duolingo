@@ -1,5 +1,4 @@
 "use client";
-import { Link, useRouter } from "@/i18n/routing";
 import Image from "next/image";
 import React from "react";
 import { Button } from "./ui/button";
@@ -8,6 +7,8 @@ import qs from "query-string";
 import { EVENT_TYPE } from "@/lib/types";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Props = {
     userId?: number;

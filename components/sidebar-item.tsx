@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Link } from "@/i18n/routing";
+import Link from "next/link";
 
 type Props = {
     label: string;
@@ -13,7 +13,7 @@ type Props = {
 
 const SidebarItem = ({ href, iconSrc, label }: Props) => {
     const pathname = usePathname();
-    const active = pathname?.split("/")[2] === href?.split("/")[1];
+    const active = pathname === href;
 
     return (
         <Button className="p-[4px_8px] text-[calc(var(--type-base-size)-3px)] justify-start h-[52px] gap-0" variant={active ? "sidebarOutline" : "sidebar"} asChild>
