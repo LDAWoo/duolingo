@@ -15,11 +15,7 @@ const LessonPage = async () => {
 
     const initialPercentage = (data.lesson.challenges.filter((challenge) => challenge.completed).length / data.lesson.challenges.length) * 100;
 
-    return (
-        <>
-            <Quiz initialLessonId={data.lesson.lessonId} initialLessonChallenges={data.lesson.challenges} initialHearts={userProgress.hearts} initialPercentage={initialPercentage} userSubscription={null} />
-        </>
-    );
+    return <Quiz initialLessonId={data.lesson.lessonId} initialLessonChallenges={data.lesson.challenges} initialHearts={userProgress.hearts} initialPercentage={initialPercentage} userSubscription={null} />;
 };
 
 export default LessonPage;

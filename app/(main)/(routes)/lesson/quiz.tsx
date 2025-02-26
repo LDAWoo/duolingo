@@ -5,19 +5,17 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
 import React from "react";
-import dynamic from "next/dynamic";
-
-const Audio = dynamic(() => import("./audio"), { ssr: false });
-const Challenge = dynamic(() => import("./challenge"), { ssr: false });
-const ChallengeFill = dynamic(() => import("./challenge-fill"), { ssr: false });
-const ChallengeMatch = dynamic(() => import("./challenge-match"), { ssr: false });
-const ChallengeQuestion = dynamic(() => import("./challenge-question"), { ssr: false });
-const Finish = dynamic(() => import("./finish"), { ssr: false });
-const Footer = dynamic(() => import("./footer"), { ssr: false });
-const Header = dynamic(() => import("./header"), { ssr: false });
-const QuestionAudio = dynamic(() => import("./question-audio"), { ssr: false });
-const QuestionBubble = dynamic(() => import("./question-bubble"), { ssr: false });
-const QuestionConversation = dynamic(() => import("./question-conversation"), { ssr: false });
+import Audio from "./audio";
+import Challenge from "./challenge";
+import ChallengeFill from "./challenge-fill";
+import ChallengeMatch from "./challenge-match";
+import ChallengeQuestion from "./challenge-question";
+import Finish from "./finish";
+import Footer from "./footer";
+import Header from "./header";
+import QuestionAudio from "./question-audio";
+import QuestionBubble from "./question-bubble";
+import QuestionConversation from "./question-conversation";
 
 type Props = {
     initialLessonId: number;
@@ -36,7 +34,7 @@ type Props = {
 
 type ChallengePartOption = typeof challengeParts.$inferSelect;
 
-const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonChallenges, initialPercentage, userSubscription }) => {
+const Quiz = ({ initialLessonId, initialHearts, initialLessonChallenges, initialPercentage, userSubscription }: Props) => {
     const router = useRouter();
     const { onOpen } = useModal();
     const workerRef = React.useRef<Worker | null>(null);
