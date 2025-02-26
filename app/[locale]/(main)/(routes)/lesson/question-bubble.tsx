@@ -18,7 +18,7 @@ const QuestionBubble = ({ question, audioSrc, imageSrc }: Props) => {
     const lottieRef = React.useRef<LottieRefCurrentProps>(null);
 
     const [audio, _, __, ref] = useAudio({
-        src: audioSrc,
+        src: "/audio/none.mp3",
         autoPlay: false,
     });
 

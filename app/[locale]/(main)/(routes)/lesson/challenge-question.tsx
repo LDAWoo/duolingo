@@ -17,7 +17,7 @@ type Props = {
 
 const ChallengeQuestion = ({ questions, audioSrc, imageSrc }: Props) => {
     const [audio, _, __, ref] = useAudio({
-        src: audioSrc,
+        src: "/audio/none.mp3",
         autoPlay: false,
     });
 
