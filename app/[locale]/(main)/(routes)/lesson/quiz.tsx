@@ -79,7 +79,7 @@ const Quiz: React.FC<Props> = ({ initialLessonId, initialHearts, initialLessonCh
         if (hearts === 0) {
             onOpen("hearts");
         }
-    }, [hearts, onOpen]);
+    }, [hearts]);
 
     const challenge = challenges[activeIndex];
 

@@ -38,12 +38,12 @@ const AuthenticationModal = () => {
                     <h1 className="text-[calc(var(--type-base-size)+8px)] mt-[10px] mb-[15px] font-bold">Đăng nhập</h1>
                     <div></div>
 
-                    <Button className="w-full text-[calc(var(--type-base-size)-3px)]" variant={"primary"} size={"lg"}>
+                    {/* <Button className="w-full text-[calc(var(--type-base-size)-3px)]" variant={"primary"} size={"lg"}>
                         Đăng nhập
-                    </Button>
+                    </Button> */}
 
                     <p className="grid grid-cols-2 gap-[15px] mt-5">
-                        <Button variant={"primaryOutline"} size={"lg"}>
+                        <Button variant={"primaryOutline"} size={"lg"} disabled>
                             <Image src={"/facebook.svg"} alt="Facebook" width={12} height={22} className="mr-[10px]" />
                             <span className="text-[rgb(59,89,152)] text-[calc(var(--type-base-size)-3px)]">Facebook</span>
                         </Button>

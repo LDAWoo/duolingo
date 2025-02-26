@@ -33,7 +33,13 @@ const Header = () => {
                     <h1 className="text-[calc(var(--type-base-size)+14px)] font-bold text-foreground max-w-[480px] text-center leading-tight">Cách học ngôn ngữ miễn phí, vui nhộn và hiệu quả!</h1>
 
                     <div className="max-w-[330px] w-full flex flex-col mt-10 gap-3">
-                        <Button variant={"secondary"} size={"lg"}>
+                        <Button
+                            variant={"secondary"}
+                            size={"lg"}
+                            onClick={() => {
+                                onOpen("authentication");
+                            }}
+                        >
                             Bắt đầu
                         </Button>
                         <Button
