@@ -34,12 +34,6 @@ type Props = {
     params: Promise<{ locale: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
-    return {
-        title: "Duolingo",
-    };
-}
-
 export default async function RootLayout({ children }: Props) {
     return (
         <BaseLayout className={lingo.className} locale={"en"}>

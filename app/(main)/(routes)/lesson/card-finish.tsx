@@ -1,8 +1,7 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import React, { useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
-import Counter from "@/components/global/counter";
+import React from "react";
 
 type Props = {
     variant: "points" | "experiences";

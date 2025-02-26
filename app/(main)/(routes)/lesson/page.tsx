@@ -3,14 +3,7 @@ import React from "react";
 import Quiz from "./quiz";
 import { redirect } from "next/navigation";
 
-type Props = {
-    params: Promise<{
-        locale: string;
-    }>;
-};
-
-const LessonPage = async ({ params }: Props) => {
-    const { locale } = await params;
+const LessonPage = async () => {
     const lessonData = getLesson();
     const userProgressData = getUserProgress();
 

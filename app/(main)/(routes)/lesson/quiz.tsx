@@ -1,21 +1,21 @@
 "use client";
 import { challengeOptions, challengeParts, challengeQuestions, challengeQuestionTranslations, challenges } from "@/db/schema";
 import { useModal } from "@/providers/modal-provider";
-import React, { act } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import qs from "query-string";
+import React from "react";
 import Audio from "./audio";
 import Challenge from "./challenge";
 import ChallengeFill from "./challenge-fill";
 import ChallengeMatch from "./challenge-match";
+import ChallengeQuestion from "./challenge-question";
 import Finish from "./finish";
 import Footer from "./footer";
 import Header from "./header";
 import QuestionAudio from "./question-audio";
 import QuestionBubble from "./question-bubble";
 import QuestionConversation from "./question-conversation";
-import ChallengeQuestion from "./challenge-question";
-import qs from "query-string";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 
 type Props = {
     initialLessonId: number;
