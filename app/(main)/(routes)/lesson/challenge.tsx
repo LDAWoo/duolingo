@@ -1,3 +1,4 @@
+"use client";
 import { challengeOptions, challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import React from "react";
