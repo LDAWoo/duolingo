@@ -17,7 +17,7 @@ const LeaderBoardPage = async () => {
 
     const [user, steaks, leagues, leaderboard] = await Promise.all([userData, steakData, leagueData, leaderBoardData]);
 
-    if (!user?.userProgress || !user?.userProgress.activeCourse) {
+    if (!user?.userProgress || !user?.userProgress?.activeCourse) {
         return redirect("/courses");
     }
 

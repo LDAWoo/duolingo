@@ -1,4 +1,4 @@
-"use sever";
+"use server";
 
 import db from "@/db/drizzle";
 import { leaderboards } from "@/db/schema";
@@ -7,33 +7,32 @@ import { Leaderboard } from "@/lib/types";
 import { eq, sql } from "drizzle-orm";
 
 export const getLeaderboard = async () => {
-    try {
-        const user = await currentUser();
+    const user = await currentUser();
 
-        if (!user) {
-            return null;
-        }
+    if (!user) {
+        return null;
+    }
 
-        const userId = user.id;
+    const userId = user.id;
 
-        const [currentUserLeaderboard] = await db
-            .select({
-                leagueId: leaderboards.leagueId,
-            })
-            .from(leaderboards)
-            .where(eq(leaderboards.userId, userId))
-            .limit(1);
+    const [currentUserLeaderboard] = await db
+        .select({
+            leagueId: leaderboards.leagueId,
+        })
+        .from(leaderboards)
+        .where(eq(leaderboards.userId, userId))
+        .limit(1);
 
-        if (!currentUserLeaderboard) {
-            return null;
-        }
+    if (!currentUserLeaderboard) {
+        return null;
+    }
 
-        const { leagueId } = currentUserLeaderboard;
+    const { leagueId } = currentUserLeaderboard;
 
-        if (!leagueId) return null;
+    if (!leagueId) return null;
 
-        const leagueWithUsers = await db.execute(
-            sql`
+    const leagueWithUsers = await db.execute(
+        sql`
                 WITH ranked_users AS (
                     SELECT 
                         users.username,
@@ -66,15 +65,11 @@ export const getLeaderboard = async () => {
                 GROUP BY leagues.id
                 LIMIT 1;
             `
-        );
+    );
 
-        if (!leagueWithUsers.rows || leagueWithUsers.rows.length === 0) {
-            return null;
-        }
-
-        return leagueWithUsers.rows[0] as Leaderboard;
-    } catch (error) {
-        console.error("Error fetching leaderboard:", error);
-        throw new Error("Failed to fetch leaderboard");
+    if (!leagueWithUsers.rows || leagueWithUsers.rows.length === 0) {
+        return null;
     }
+
+    return leagueWithUsers.rows[0] as Leaderboard;
 };
