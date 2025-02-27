@@ -1,7 +1,9 @@
 {
     "redirects": [
         {
-            "source": "/(.*)"
+            "source": "/(.*)",
+            "destination": "/learn",
+            "permanent": true
         }
     ]
 }
