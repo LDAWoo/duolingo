@@ -5,17 +5,17 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
 import React from "react";
-import Audio from "./_components/audio";
-import Challenge from "./challenge";
-import ChallengeFill from "./_components/challenge-fill";
-import ChallengeMatch from "./_components/challenge-match";
-import ChallengeQuestion from "./_components/challenge-question";
+// import Audio from "./_components/audio";
+// import Challenge from "./challenge";
+// import ChallengeFill from "./_components/challenge-fill";
+// import ChallengeMatch from "./_components/challenge-match";
+// import ChallengeQuestion from "./_components/challenge-question";
+// import QuestionAudio from "./_components/question-audio";
+// import QuestionBubble from "./_components/question-bubble";
+// import QuestionConversation from "./_components/question-conversation";
 import Finish from "./finish";
 import Footer from "./footer";
 import Header from "./header";
-import QuestionAudio from "./_components/question-audio";
-import QuestionBubble from "./_components/question-bubble";
-import QuestionConversation from "./_components/question-conversation";
 
 type Props = {
     initialLessonId: number;
@@ -286,7 +286,7 @@ const Quiz = ({ initialLessonId, initialHearts, initialLessonChallenges, initial
     return (
         <>
             <Header hearts={hearts} status={status} percentage={percentage} hasActiveSubscription={!!userSubscription?.isActive} />
-            <div className="flex-1">
+            {/* <div className="flex-1">
                 <div className="grid h-full w-full items-center justify-center grid-rows-[minmax(0,1fr)] grid-cols-1 device:grid-cols-[min-content] device:grid-rows-[min-content] p-[24px_16px]">
                     <div key={challenge.id} className="animate-slide-left device:min-h-[450px] device:w-[600px] w-full grid grid-rows-[min-content,minmax(0,1fr)] gap-4 overflow-y-auto overflow-x-hidden device:overflow-y-visible device:gap-6">
                         <div className="flex flex-col gap-2">
@@ -305,7 +305,7 @@ const Quiz = ({ initialLessonId, initialHearts, initialLessonChallenges, initial
                 </div>
             </div>
             <Audio status={status} />
-            <Footer loading={loading} disable={onDisableButton() || loading} status={status} answerCorrect={onAnswerCorrect()} onCheck={onContinue} />
+            <Footer loading={loading} disable={onDisableButton() || loading} status={status} answerCorrect={onAnswerCorrect()} onCheck={onContinue} /> */}
         </>
     );
 };
