@@ -58,16 +58,18 @@ const Quiz = ({ initialLessonId, initialHearts, initialLessonChallenges, initial
     const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
-        workerRef.current = new Worker(new URL("/workers/challenge-progress-workers.js", process.env.NEXT_PUBLIC_URL));
-        userProgressWorkerRef.current = new Worker(new URL("/workers/user-progress-workers.js", process.env.NEXT_PUBLIC_URL));
+        if (typeof window !== "undefined") {
+            workerRef.current = new Worker(new URL("/workers/challenge-progress-workers.js", process.env.NEXT_PUBLIC_URL));
+            userProgressWorkerRef.current = new Worker(new URL("/workers/user-progress-workers.js", process.env.NEXT_PUBLIC_URL));
 
-        workerRef.current.onmessage = (event) => {
-            if (event.data.message === "completed") {
-                setPending("completed");
-            } else if (event.data.message === "none") {
-                setPending("none");
-            }
-        };
+            workerRef.current.onmessage = (event) => {
+                if (event.data.message === "completed") {
+                    setPending("completed");
+                } else if (event.data.message === "none") {
+                    setPending("none");
+                }
+            };
+        }
 
         return () => {
             workerRef.current?.terminate();
