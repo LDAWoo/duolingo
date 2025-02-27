@@ -4,7 +4,7 @@ import React from "react";
 import { Portal } from "@radix-ui/react-portal";
 import { cn } from "@/lib/utils";
 import { useAudio } from "react-use";
-import MatchContent from "./_components/match-content";
+import MatchContent from "./match-content";
 
 type Option = typeof challengeParts.$inferSelect;
 
