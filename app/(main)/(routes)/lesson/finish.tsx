@@ -3,7 +3,7 @@ import LottieWrapper from "@/components/global/lottie-wrapper";
 import React from "react";
 
 import animatedData from "@/public/animation/finish-oscar.json";
-import CardFinish from "./card-finish";
+import CardFinish from "./_components/card-finish";
 import { useAudio } from "react-use";
 import Counter from "@/components/global/counter";
 

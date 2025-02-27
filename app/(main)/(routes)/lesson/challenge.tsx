@@ -2,7 +2,7 @@
 import { challengeOptions, challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import React from "react";
-import Card from "./card";
+import Card from "./_components/card";
 type Props = {
     options: (typeof challengeOptions.$inferSelect)[];
     onSelect: (id: number) => void;

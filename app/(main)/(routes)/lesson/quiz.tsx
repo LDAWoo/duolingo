@@ -5,17 +5,17 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
 import React from "react";
-import Audio from "./audio";
+import Audio from "./_components/audio";
 import Challenge from "./challenge";
-import ChallengeFill from "./challenge-fill";
-import ChallengeMatch from "./challenge-match";
-import ChallengeQuestion from "./challenge-question";
+import ChallengeFill from "./_components/challenge-fill";
+import ChallengeMatch from "./_components/challenge-match";
+import ChallengeQuestion from "./_components/challenge-question";
 import Finish from "./finish";
 import Footer from "./footer";
 import Header from "./header";
-import QuestionAudio from "./question-audio";
-import QuestionBubble from "./question-bubble";
-import QuestionConversation from "./question-conversation";
+import QuestionAudio from "./_components/question-audio";
+import QuestionBubble from "./_components/question-bubble";
+import QuestionConversation from "./_components/question-conversation";
 
 type Props = {
     initialLessonId: number;
