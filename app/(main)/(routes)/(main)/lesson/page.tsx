@@ -1,22 +1,35 @@
-// import { getLesson, getUserProgress } from "@/db/queries";
+import { getLesson, getUserProgress } from "@/db/queries";
 import React from "react";
-// import Quiz from "./quiz";
-// import { redirect } from "next/navigation";
+import Quiz from "./quiz";
+import { redirect } from "next/navigation";
 
-const LessonPage = () => {
-    // const lessonData = getLesson();
-    // const userProgressData = getUserProgress();
+const LessonPage = async () => {
+  const lessonData = getLesson();
+  const userProgressData = getUserProgress();
 
-    // const [data, userProgress] = await Promise.all([lessonData, userProgressData]);
+  const [data, userProgress] = await Promise.all([
+    lessonData,
+    userProgressData,
+  ]);
 
-    // if (!data || !data.lesson || !data.lesson.lessonId || !userProgress) {
-    //     return redirect("/learn");
-    // }
+  if (!data || !data.lesson || !data.lesson.lessonId || !userProgress) {
+    return redirect("/learn");
+  }
 
-    // const initialPercentage = (data.lesson.challenges.filter((challenge) => challenge.completed).length / data.lesson.challenges.length) * 100;
+  const initialPercentage =
+    (data.lesson.challenges.filter((challenge) => challenge.completed).length /
+      data.lesson.challenges.length) *
+    100;
 
-    return <div></div>;
-    // return <Quiz initialLessonId={data.lesson.lessonId} initialLessonChallenges={data.lesson.challenges} initialHearts={userProgress.hearts} initialPercentage={initialPercentage} userSubscription={null} />;
+  return (
+    <Quiz
+      initialLessonId={data.lesson.lessonId}
+      initialLessonChallenges={data.lesson.challenges}
+      initialHearts={userProgress.hearts}
+      initialPercentage={initialPercentage}
+      userSubscription={null}
+    />
+  );
 };
 
 export default LessonPage;
